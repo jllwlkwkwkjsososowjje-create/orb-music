@@ -697,6 +697,9 @@
         }
 
         function closeAuthModal() { document.getElementById('authOverlay').classList.remove('active'); }
+
+        const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('open') === 'login') { openAuthModal('login'); }
     </script>
 </body>
 </html>
