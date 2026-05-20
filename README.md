@@ -605,6 +605,22 @@
                 });
         }
 
+                function handleLoginSubmit(e) {
+            e.preventDefault();
+            
+            // التشيك السحري: هل الشخص ده دخل على رابط الإيميل وفعل حسابه؟
+            const isVerified = localStorage.getItem('accountVerified');
+
+            if (isVerified === 'true') {
+                alert('✅ تم التحقق من حسابك بنجاح! جاري تحويلك إلى لوحة التحكم وتحميل السيرفر...');
+                // تحويله فوراً للـ Dashboard طالما الحساب متفعل ومثبت من نفس الجهاز
+                window.location.href = 'dashboard.html'; 
+            } else {
+                // لو حاول يسجل من غير ما يفتح الرابط اللي في الإيميل
+                alert('❌ عذراً! هذا الحساب غير مفعّل. يجب عليك الضغط على رابط التفعيل المرسل إلى بريدك الإلكتروني أولاً لتتمكن من تسجيل الدخول.');
+            }
+        }
+
         function handleLoginSubmit(e) {
             e.preventDefault();
             alert('تم تسجيل الدخول بنجاح! جاري تحويلك للوحة التحكم...');
