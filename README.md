@@ -454,6 +454,7 @@
     </div>
 
     <div class="auth-overlay" id="authOverlay">
+        
         <div class="auth-modal" id="loginModal">
             <span class="close-btn" onclick="closeAuthModal()">&times;</span>
             <div class="auth-title">Login</div>
@@ -467,8 +468,8 @@
                     <input type="password" id="logPassword" required placeholder="••••••••">
                 </div>
                 <div class="captcha-box">
-                    <input type="checkbox" id="captchaCheck" required>
-                    <label for="captchaCheck" style="font-size: 0.8rem; color: #94a3b8; cursor: pointer;">I am not a robot</label>
+                    <input type="checkbox" id="captchaCheckLogin" required>
+                    <label for="captchaCheckLogin" style="font-size: 0.8rem; color: #94a3b8; cursor: pointer;">I am not a robot</label>
                     <i class="fa-solid fa-shield-halved" style="color: #34d399; margin-left: auto;"></i>
                 </div>
                 <button type="submit" class="action-btn btn-start" style="margin-bottom:0;">Login</button>
@@ -501,6 +502,11 @@
                     <label>Confirm Password</label>
                     <input type="password" id="regConfirmPassword" required placeholder="••••••••">
                 </div>
+                <div class="captcha-box">
+                    <input type="checkbox" id="captchaCheckReg" required>
+                    <label for="captchaCheckReg" style="font-size: 0.8rem; color: #94a3b8; cursor: pointer;">I am not a robot</label>
+                    <i class="fa-solid fa-shield-halved" style="color: #34d399; margin-left: auto;"></i>
+                </div>
                 <button type="submit" class="action-btn btn-start" style="margin-bottom:0; background:#34d399; color:#000;">Verify Email</button>
             </form>
             <div class="switch-auth-mode">Already have an account? <span onclick="openAuthModal('login')">Login</span></div>
@@ -510,8 +516,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        // بيانات السيرفر الخاص بك 🌟
+        
         const firebaseConfig = {
           apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
           authDomain: "host-the-future-b9ef5.firebaseapp.com",
@@ -525,7 +530,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // دالة إنشاء الحساب وتربيطها بالفايربيز و EmailJS
+        // [1] دالة إرسال الإيميل أولاً وحساب الـ 10 دقائق من غير حفظ في قاعدة البيانات
         window.handleRegisterSubmit = function(e) {
             e.preventDefault();
             
@@ -541,64 +546,102 @@
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Processing...";
+            submitBtn.innerText = "Sending Verification...";
             submitBtn.disabled = true;
 
-            createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    const templateParams = {
-                        user_email: email,
-                        user_name: username,
-                        reply_to: "support@thefuture.com"
-                    };
-                    
-                    emailjs.send("service_z01ptyg", "template_mbb5nh5", templateParams)
-                        .then(function() {
-                            alert(`✅ تم إنشاء الحساب في السيرفر وإرسال رابط التفعيل إلى: ${email}\n\nيرجى تفقد بريدك لتأكيد الهوية بفتح الرابط الجديد.`);
-                            submitBtn.innerText = originalText;
-                            submitBtn.disabled = false;
-                            openAuthModal('login'); 
-                        }, function(err) {
-                            alert("⚠️ تم إنشاء الحساب، ولكن فشل إرسال إيميل التفعيل. يمكنك تجربة الدخول مباشرة.");
-                            submitBtn.innerText = originalText;
-                            submitBtn.disabled = false;
-                            openAuthModal('login');
-                        });
-                })
-                .catch((error) => {
+            const timestamp = Date.now(); 
+            const randomToken = Math.random().toString(36).substring(2, 10); 
+
+            const encodedPass = btoa(password); 
+            const encodedUser = encodeURIComponent(username);
+            
+            // ربط المسار أوتوماتيكياً بصفحة الجيتهاب الحقيقية بتاعتك محمل بالوقت والتtoken المؤقت 🎯
+            const verificationLink = `https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/verify.html?action=verify&email=${email}&key=${encodedPass}&user=${encodedUser}&time=${timestamp}&token=${randomToken}`;
+
+            const templateParams = {
+                user_email: email,
+                user_name: username,
+                verification_link: verificationLink, 
+                reply_to: "support@thefuture.com"
+            };
+            
+            emailjs.send("service_z01ptyg", "template_mbb5nh5", templateParams)
+                .then(function() {
+                    alert(`📩 تم إرسال رابط تفعيل فريد إلى: ${email}\n\n⚠️ تنبيه هام: الرابط صالِح لمدة 10 دقائق فقط! لن يتم حفظ الحساب في الفايربيز إلا عند الضغط عليه.`);
                     submitBtn.innerText = originalText;
                     submitBtn.disabled = false;
-                    if (error.code === 'auth/email-already-in-use') {
-                        alert("❌ هذا البريد الإلكتروني مسجل بالفعل في قاعدة البيانات!");
-                    } else if (error.code === 'auth/weak-password') {
-                        alert("❌ كلمة المرور ضعيفة جداً! يجب أن تكون 6 أحرف أو أكثر.");
-                    } else {
-                        alert("❌ خطأ في السيرفر: " + error.message);
-                    }
+                    closeAuthModal();
+                }, function(err) {
+                    alert("❌ فشل إرسال إيميل التحقق، يرجى مراجعة إعدادات الـ EmailJS والـ Template.");
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
                 });
         };
 
-        // دالة تسجيل الدخول والتحقق الحقيقي من الفايربيز
+        // [2] فحص طابع الوقت (Timestamp) والتفعيل الفوري عند دخول رابط الجيتهاب الموثق
+        function checkVerificationRoute() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            const email = urlParams.get('email');
+            const key = urlParams.get('key');
+            const user = urlParams.get('user');
+            const linkTime = urlParams.get('time'); 
+
+            if (action === 'verify' && email && key && linkTime) {
+                
+                const currentTime = Date.now();
+                const timeDifference = currentTime - parseInt(linkTime);
+                const tenMinutesInMs = 10 * 60 * 1000; // 10 دقائق بالملي ثانية
+
+                // جدار الحماية الزمني ⏱️
+                if (timeDifference > tenMinutesInMs) {
+                    alert("❌ عذراً! انتهت صلاحية هذا الرابط (مر عليه أكثر من 10 دقائق).\n\nبرجاء كتابة بياناتك من جديد للحصول على رابط صالح ونشط.");
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    openAuthModal('register'); 
+                    return;
+                }
+
+                alert("⏳ الرابط صالح وموثق! جاري تفعيل وحفظ حسابك سحابياً فوراً...");
+                
+                const decodedPassword = atob(key);
+
+                // حفظ الحساب بشكل نهائي وحصري الآن بعد أن فتح الإيميل
+                createUserWithEmailAndPassword(auth, email, decodedPassword)
+                    .then((userCredential) => {
+                        localStorage.setItem('accountVerified', 'true');
+                        alert(`✅ مبروك يا ${decodeURIComponent(user || 'بطل')}!\nتم إثبات هويتك بنجاح وحفظ الحساب في خوادم الفايربيز السحابية.`);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        openAuthModal('login');
+                    })
+                    .catch((error) => {
+                        if (error.code === 'auth/email-already-in-use') {
+                            alert("❌ هذا الحساب تم تفعيله وحفظه في السيرفر بالفعل مسبقاً!");
+                        } else {
+                            alert("❌ خطأ سحابي أثناء تفعيل الحساب: " + error.message);
+                        }
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    });
+            }
+        }
+
+        // تفعيل فحص الرابط التلقائي فور تحميل الصفحة
+        window.addEventListener('load', checkVerificationRoute);
+
+        // [3] دالة تسجيل الدخول والتحقق الفايربيز
         window.handleLoginSubmit = function(e) {
             e.preventDefault();
             
             const email = document.getElementById('logEmail').value;
             const password = document.getElementById('logPassword').value;
 
-            const isVerified = localStorage.getItem('accountVerified');
-
-            if (isVerified !== 'true') {
-                alert('❌ عذراً! هذا الحساب غير مفعّل. يجب عليك الضغط على رابط التفعيل المرسل إلى بريدك الإلكتروني أولاً لتتمكن من تسجيل الدخول.');
-                return;
-            }
-
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    alert('✅ تم التحقق من قاعدة البيانات بنجاح! جاري تحويلك إلى لوحة التحكم وتحميل السيرفر...');
+                    localStorage.setItem('accountVerified', 'true');
+                    alert('✅ تم التحقق والمطابقة! جاري تحويلك إلى لوحة التحكم الشخصية...');
                     window.location.href = 'dashboard.html';
                 })
                 .catch((error) => {
-                    alert('❌ خطأ في تسجيل الدخول: البريد الإلكتروني أو كلمة المرور غير صحيحة في قاعدة البيانات.');
+                    alert('❌ خطأ في الدخول: البريد غير مسجل (لم يتم تفعيله بعد) أو كلمة المرور غير صحيحة.');
                 });
         };
     </script>
