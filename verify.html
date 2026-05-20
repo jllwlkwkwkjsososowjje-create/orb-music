@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Future | Account Verified</title>
+    <title>The Future | Processing Activation...</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -23,9 +23,58 @@
             align-items: center;
             padding: 20px;
             overflow: hidden;
+            position: relative;
         }
 
-        /* كرت التأكيد في منتصف الشاشة تماماً ومتوافق مع الموبايل والكمبيوتر */
+        /* 🌌 شاشة التحميل الفخمة (تظهر أول ما يدخل) */
+        .loader-wrapper {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0c071a 0%, #030205 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        /* أنيميشن الدوران السحابي المضيء السيان */
+        .cosmic-spinner {
+            width: 75px;
+            height: 75px;
+            border: 3px solid rgba(0, 188, 212, 0.1);
+            border-radius: 50%;
+            border-top-color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            box-shadow: 0 0 20px rgba(0, 188, 212, 0.2);
+            animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            margin-bottom: 25px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .loader-sub {
+            font-size: 0.85rem;
+            color: #64748b;
+            max-width: 320px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* 🟢 كرت التأكيد المفضل لديك (مخفي في البداية بـ opacity: 0) */
         .verify-card {
             background: rgba(10, 8, 15, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -36,12 +85,17 @@
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
             backdrop-filter: blur(10px);
-            animation: fadeIn 0.6s ease-out;
+            opacity: 0;
+            transform: scale(0.92);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none; /* يمنع الضغط وهي مخفية */
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* الـ Class ده هيتضاف بالـ JS عشان يظهر الكرت بشكل أنيميشن قفزة احترافية */
+        .verify-card.show-card {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
         }
 
         /* علامة الصح المتحركة والمضيئة باللون الأخضر */
@@ -108,37 +162,161 @@
             box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
         }
 
-        /* دعم كامل وممتاز لترجمة جوجل التلقائية دون أي تعليق */
         font {
             background: transparent !important;
             color: inherit !important;
             box-shadow: none !important;
         }
     </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
-    <div class="verify-card">
-        
-        <div class="icon-box">
-            <i class="fa-solid fa-circle-check"></i>
-        </div>
-
-        <h1>Email Verified Successfully</h1>
-        <p>Your identity has been confirmed. Your email belongs to you and your account is now fully activated in The Future network.</p>
-
-        <a href="index.html" class="back-btn">
-            <i class="fa-solid fa-arrow-left"></i> Back to Login
-        </a>
-
+    <div class="loader-wrapper" id="cosmicLoader">
+        <div class="cosmic-spinner"></div>
+        <div class="loader-text" id="loaderTitle">Verifying Account...</div>
+        <div class="loader-sub" id="loaderSub">Connecting to cloud infrastructure and matching database tokens, please wait.</div>
     </div>
 
-    <script>
-        // أول ما المستخدم يفتح الصفحة دي، بنسجل في ذاكرة المتصفح إن حسابه اتفعل بجد
-        localStorage.setItem('accountVerified', 'true');
-        
-        // اختياري: لو عايز تحفظ الإيميل اللي اتفعل برضه
-        localStorage.setItem('verifiedEmail', 'true');
+    <div class="verify-card" id="successCard">
+        <div class="icon-box" id="cardIconBox">
+            <i class="fa-solid fa-circle-check" id="cardIcon"></i>
+        </div>
+
+        <h1 id="cardHeading">Email Verified Successfully</h1>
+        <p id="cardMessage">Your identity has been confirmed. Your email belongs to you and your account is now fully activated in The Future network.</p>
+
+        <a href="index.html?open=login" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> Back to Login
+        </a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // بيانات السيرفر السحابي الخاصة بك 🌟
+        const firebaseConfig = {
+          apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
+          authDomain: "host-the-future-b9ef5.firebaseapp.com",
+          projectId: "host-the-future-b9ef5",
+          storageBucket: "host-the-future-b9ef5.firebasestorage.app",
+          messagingSenderId: "613938151767",
+          appId: "1:613938151767:web:f3bb0d95f14cc8d1cb7e12",
+          measurementId: "G-2B5YWFC4VV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        function handleVerification() {
+            // حساب وقت عشوائي بالملي ثانية بين 10 ثواني (10000) و 15 ثانية (15000) 🎯
+            const randomLoadingTime = Math.floor(Math.random() * (15000 - 10000 + 1)) + 10000;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            const email = urlParams.get('email');
+            const key = urlParams.get('key');
+            const user = urlParams.get('user');
+            const linkTime = urlParams.get('time');
+
+            const loader = document.getElementById('cosmicLoader');
+            const successCard = document.getElementById('successCard');
+            
+            const cardIconBox = document.getElementById('cardIconBox');
+            const cardIcon = document.getElementById('cardIcon');
+            const cardHeading = document.getElementById('cardHeading');
+            const cardMessage = document.getElementById('cardMessage');
+
+            // بعد انتهاء مدة الـ Loading العشوائية بنبدأ الفحص والتسجيل
+            setTimeout(() => {
+                
+                if (action === 'verify' && email && key && linkTime) {
+                    const currentTime = Date.now();
+                    const timeDifference = currentTime - parseInt(linkTime);
+                    const tenMinutesInMs = 10 * 60 * 1000; // 10 دقائق
+
+                    // [1] فحص انتهاء صلاحية الرابط (الـ 10 دقائق)
+                    if (timeDifference > tenMinutesInMs) {
+                        // تحويل الكرت لشكل الخطأ الفخم
+                        cardIconBox.style.borderColor = "#ff3b3b";
+                        cardIconBox.style.background = "rgba(255, 59, 59, 0.05)";
+                        cardIconBox.style.boxShadow = "0 0 20px rgba(255, 59, 59, 0.2)";
+                        cardIcon.className = "fa-solid fa-circle-xmark";
+                        cardIcon.style.color = "#ff3b3b";
+                        
+                        cardHeading.innerText = "Link Expired!";
+                        cardMessage.innerText = "This unique activation link has expired (valid for 10 minutes only). Please return to the homepage and create a new account to get a fresh link.";
+                        
+                        // إخفاء الـ Loader وإظهار كرت الخطأ
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.style.display = 'none', 500);
+                        successCard.classList.add('show-card');
+                        return;
+                    }
+
+                    // [2] فك التشفير والتسجيل في الفايربيز
+                    const decodedPassword = atob(key);
+                    const decodedUser = decodeURIComponent(user || 'User');
+
+                    createUserWithEmailAndPassword(auth, email, decodedPassword)
+                        .then((userCredential) => {
+                            // تفعيل الإذن بالدخول في المتصفح
+                            localStorage.setItem('accountVerified', 'true');
+                            localStorage.setItem('verifiedEmail', 'true');
+
+                            // تحديث نصوص الكرت باسم اليوزر
+                            cardHeading.innerText = "Email Verified Successfully";
+                            cardMessage.innerHTML = `Welcome back <b>${decodedUser}</b>!<br>Your identity has been confirmed and your account is now fully activated in The Future network.`;
+
+                            // اختفاء شاشة التحميل السينمائي وظهور الكرت الأخضر
+                            loader.style.opacity = '0';
+                            setTimeout(() => loader.style.display = 'none', 500);
+                            successCard.classList.add('show-card');
+                        })
+                        .catch((error) => {
+                            // لو مسجل قبل كده
+                            if (error.code === 'auth/email-already-in-use') {
+                                cardIconBox.style.borderColor = "#f59e0b";
+                                cardIconBox.style.background = "rgba(245, 158, 11, 0.05)";
+                                cardIconBox.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.2)";
+                                cardIcon.className = "fa-solid fa-triangle-exclamation";
+                                cardIcon.style.color = "#f59e0b";
+
+                                cardHeading.innerText = "Already Activated";
+                                cardMessage.innerText = "This email is already verified and saved in our cloud server. You can head straight to login.";
+                            } else {
+                                // أي خطأ سيرفر آخر
+                                cardIconBox.style.borderColor = "#ff3b3b";
+                                cardIcon.className = "fa-solid fa-circle-xmark";
+                                cardIcon.style.color = "#ff3b3b";
+                                cardHeading.innerText = "Activation Failed";
+                                cardMessage.innerText = "Server Error: " + error.message;
+                            }
+
+                            loader.style.opacity = '0';
+                            setTimeout(() => loader.style.display = 'none', 500);
+                            successCard.classList.add('show-card');
+                        });
+
+                } else {
+                    // رابط ملعوب فيه أو ناقص توكنز
+                    cardIconBox.style.borderColor = "#ff3b3b";
+                    cardIconBox.style.background = "rgba(255, 59, 59, 0.05)";
+                    cardIcon.className = "fa-solid fa-circle-xmark";
+                    cardIcon.style.color = "#ff3b3b";
+                    cardHeading.innerText = "Corrupted Link";
+                    cardMessage.innerText = "Security Alert: This activation URL is invalid or has been modified. Please use the original link from your email.";
+                    
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 500);
+                    successCard.classList.add('show-card');
+                }
+
+            }, randomLoadingTime);
+        }
+
+        window.addEventListener('load', handleVerification);
     </script>
 </body>
 </html>
