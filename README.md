@@ -411,12 +411,15 @@
         }
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <script type="text/javascript">
-        (function() { emailjs.init("LSXuDqmuHCy7-zx1w"); })();
+        (function() { 
+            emailjs.init("LSXuDqmuHCy7-zx1w"); 
+        })();
     </script>
 </head>
 <body>
-
+    
     <div class="toast-container" id="cyberToast">
         <div class="toast-text" id="toastMessage"></div>
     </div>
