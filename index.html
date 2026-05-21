@@ -515,12 +515,12 @@
                     <label id="lblLogRobot" for="captchaCheckLogin" style="font-size: 0.8rem; color: #94a3b8; cursor: pointer;">I am not a robot</label>
                     <i class="fa-solid fa-shield-halved" style="color: #34d399; margin-left: auto;"></i>
                 </div>
-                <button type="submit" class="action-btn btn-start" id="btnLogSubmit" style="margin-bottom:0;">Login</button>
+<button type="submit" class="action-btn btn-start" id="btnLogSubmit" style="margin-bottom:0;">Login</button>
             </form>
             <div class="oauth-divider" id="divLogOauth">Or Sign In With</div>
             <div class="oauth-buttons">
-                <button class="oauth-btn" style="background:#fff; color:#000;" onclick="showCyberToast(translations[currentLang].oauthGoogle)"><i class="fa-brands fa-google"></i> Google</button>
-                <button class="oauth-btn" style="background:#5865F2; color:#fff;" onclick="showCyberToast(translations[currentLang].oauthDiscord)"><i class="fa-brands fa-discord"></i> Discord</button>
+                <button class="oauth-btn" style="background:#fff; color:#000;" onclick="handleGoogleLogin()"><i class="fa-brands fa-google"></i> Google</button>
+                <button class="oauth-btn" style="background:#5865F2; color:#fff;" onclick="loginWithDiscord()"><i class="fa-brands fa-discord"></i> Discord</button>
             </div>
             <div class="switch-auth-mode" id="switchRegBox">Don't have an account? <span onclick="openAuthModal('register')">New account</span></div>
         </div>
@@ -755,9 +755,8 @@ const translations = {
     </script>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    // [تحديث سحري]: استدعاء الموديولات اللازمة لجوجل والتحقق السحابي 🛰️
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    // [الدمج الاحترافي]: سطر واحد فيه كل الداتا من غير تكرار 🚀
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     
     const firebaseConfig = {
@@ -785,15 +784,26 @@ const translations = {
     // ==========================================
     // 🌐 [1] نظام تسجيل الدخول بواسطة جـوجـل (Google OAuth)
     // ==========================================
+    // 1. دالة تسجيل الدخول بجوجل (التحويل المباشر بدون بوب-أب بايز)
     window.handleGoogleLogin = function() {
         const t = translations[currentLang];
         showCyberToast(t.oauthGoogle); // إشعار جاري الاتصال بجوجل
 
-        signInWithPopup(auth, googleProvider)
-            .then(async (result) => {
+        // التوجيه التلقائي المضمون على الموبايل
+        signInWithRedirect(auth, googleProvider);
+    };
+
+    // 2. [تكتيك لقط البيانات]: كود بيشتغل أوتوماتيك أول ما الصفحة تعمل लोड عشان يستقبل اليوزر اللي راجع من جوجل
+    import { getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    getRedirectResult(auth)
+        .then(async (result) => {
+            // لو فيه يوزر راجع بنجاح من جوجل
+            if (result && result.user) {
                 const user = result.user;
+                const t = translations[currentLang];
                 
-                // تنظيف وصناعة يوزر نيم تلقائي مشتق من الإيميل عشان نسيفه في قاعدة البيانات
+                // تنظيف وصناعة يوزر نيم تلقائي مشتق من الإيميل
                 const baseUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
                 const randomId = Math.random().toString(36).substring(2, 6);
                 const finalUsername = `${baseUsername}_${randomId}`;
@@ -803,13 +813,13 @@ const translations = {
                 const userSnapshot = await get(userRef);
 
                 if (!userSnapshot.exists()) {
-                    // لو أول مرة يسجل بجوجل.. نحجز له اليوزر نيم التلقائي سحابياً فوراً 🔒
+                    // حجز اليوزر نيم سحابياً فوراً 🔒
                     await set(ref(db, 'takenUsernames/' + finalUsername), {
                         ownerEmail: user.email,
                         uid: user.uid
                     });
 
-                    // حفظ بروفايله بالكامل
+                    // حفظ بروفايله بالكامل في السيرفر
                     await set(userRef, {
                         displayName: user.displayName,
                         username: finalUsername,
@@ -820,12 +830,12 @@ const translations = {
 
                 showCyberToast(t.loginSuccess);
                 setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
-            })
-            .catch((error) => {
-                console.error(error);
-                showCyberToast("❌ Google Login Failed: " + error.message);
-            });
-    };
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            showCyberToast("❌ Google Login Failed: " + error.message);
+        });
 
     // ==========================================
     // 🌐 [2] نظام تسجيل الدخول بواسطة ديـسـكـورد (Discord OAuth2)
