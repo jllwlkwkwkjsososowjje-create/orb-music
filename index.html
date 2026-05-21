@@ -947,20 +947,26 @@ const translations = {
         }
     };
 
-    // ==========================================
-    // 📩 [4] فحص الرابط القادم من الإيميل وتفعيله سحابياً
+        // ==========================================
+    // 📩 [4] فحص الرابط القادم من الإيميل وتفعيله سحابياً (النسخة المحمية)
     // ==========================================
     function checkVerificationRoute() {
         const t = translations[currentLang];
         const urlParams = new URLSearchParams(window.location.search);
         const action = urlParams.get('action');
+        
+        // 🛡️ [تكتيك الحماية]: لو الشخص داخل الصفحة عادي ومش جاي من رابط الإيميل، اخرج فوراً ومتعملش قفلة في الكود
+        if (action !== 'verify') {
+            return; 
+        }
+
         const email = urlParams.get('email');
         const key = urlParams.get('key');
         const displayName = urlParams.get('name');
         const user = urlParams.get('user');
         const linkTime = urlParams.get('time'); 
 
-        if (action === 'verify' && email && key && linkTime) {
+        if (email && key && linkTime) {
             const currentTime = Date.now();
             const timeDifference = currentTime - parseInt(linkTime);
             const tenMinutesInMs = 10 * 60 * 1000;
