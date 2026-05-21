@@ -857,24 +857,27 @@
     window.handleRegisterSubmit = async function(e) {
         e.preventDefault();
         const t = translations[currentLang];
+        const submitBtn = e.target.querySelector('button[type="submit"]');
         
         const email = document.getElementById('regEmail').value.trim().toLowerCase();
         const password = document.getElementById('regPassword').value;
         const confirmPassword = document.getElementById('regConfirmPassword').value;
-        const displayName = document.getElementById('regName') ? document.getElementById('regName').value : 'User';
+        const displayName = document.getElementById('regName') ? document.getElementById('regName').value.trim() : 'User';
         const username = document.getElementById('regUser').value.trim().toLowerCase(); 
         
+        // التحقق من تطابق كلمة المرور فوراً قبل أي عملية سحابية
         if (password !== confirmPassword) {
             showCyberToast(t.passMismatch);
             return;
         }
 
-        const submitBtn = e.target.querySelector('button[type="submit"]');
+        // تحويل الزرار لوضع الفحص وتأمينه ضد الضغط المتكرر
         submitBtn.innerText = currentLang === 'ar' ? "جاري فحص البيانات..." : "Checking data...";
-        submitBtn.disabled = true;
+        submitBtn.style.pointerEvents = "none";
 
         try {
             // [فحص 1] الفحص السحابي الفوري لليوزر نيم 🕵️‍♂️🔒
+            // ملحوظة: تأكد أنك مستورد ref و get من فايربيز في بداية السكربت للموديول
             const usernameRef = ref(db, 'takenUsernames/' + username);
             const usernameSnapshot = await get(usernameRef);
 
@@ -882,7 +885,7 @@
                 const errorMsg = currentLang === 'ar' ? "❌ اسم المستخدم هذا مأخوذ بالفعل! اختر اسماً آخر." : "❌ Username is already taken! Choose another.";
                 showCyberToast(errorMsg);
                 submitBtn.innerText = t.btnRegSubmit;
-                submitBtn.disabled = false;
+                submitBtn.style.pointerEvents = "auto";
                 return; 
             }
 
@@ -904,7 +907,7 @@
             if (emailExists) {
                 showCyberToast(t.alreadyActivated);
                 submitBtn.innerText = t.btnRegSubmit;
-                submitBtn.disabled = false;
+                submitBtn.style.pointerEvents = "auto";
                 return; 
             }
 
@@ -918,6 +921,7 @@
             const encodedDisplay = encodeURIComponent(displayName);
             const encodedUser = encodeURIComponent(username);
             
+            // رابط التفعيل السحابي الفاخر الخاص بك
             const verificationLink = `https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/index.html?action=verify&email=${email}&key=${encodedPass}&name=${encodedDisplay}&user=${encodedUser}&time=${timestamp}&token=${randomToken}`;
 
             const templateParams = {
@@ -931,32 +935,33 @@
                 .then(function() {
                     showCyberToast(t.emailSuccess.replace("{email}", email));
                     submitBtn.innerText = t.btnRegSubmit;
-                    submitBtn.disabled = false;
+                    submitBtn.style.pointerEvents = "auto";
                     closeAuthModal();
                 }, function(err) {
                     console.error("EmailJS Error:", err);
                     showCyberToast(t.emailFailed);
                     submitBtn.innerText = t.btnRegSubmit;
-                    submitBtn.disabled = false;
+                    submitBtn.style.pointerEvents = "auto";
                 });
 
         } catch (error) {
             console.error("Database Error:", error);
             showCyberToast(t.activationError + error.message);
+            // حماية الطوارئ: لو الفايربيز مش مستورد أو هنج، فك تعليقة الزرار فوراً هنا!
             submitBtn.innerText = t.btnRegSubmit;
-            submitBtn.disabled = false;
+            submitBtn.style.pointerEvents = "auto";
         }
     };
 
-        // ==========================================
+    // ==========================================
     // 📩 [4] فحص الرابط القادم من الإيميل وتفعيله سحابياً (النسخة المحمية)
     // ==========================================
-    function checkVerificationRoute() {
+    window.checkVerificationRoute = function() {
         const t = translations[currentLang];
         const urlParams = new URLSearchParams(window.location.search);
         const action = urlParams.get('action');
         
-        // 🛡️ [تكتيك الحماية]: لو الشخص داخل الصفحة عادي ومش جاي من رابط الإيميل، اخرج فوراً ومتعملش قفلة في الكود
+        // 🛡️ [تكتيك الحماية]: لو الشخص داخل الصفحة عادي ومش جاي من رابط الإيميل، اخرج فوراً
         if (action !== 'verify') {
             return; 
         }
@@ -1021,7 +1026,7 @@
         }
     }
 
-    window.addEventListener('load', checkVerificationRoute);
+    window.addEventListener('load', window.checkVerificationRoute);
 
     // ==========================================
     // 📩 [5] دالة تسجيل الدخول العادي بالنموذج
