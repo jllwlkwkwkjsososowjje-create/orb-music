@@ -168,7 +168,6 @@
             box-shadow: none !important;
         }
     </style>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -193,9 +192,11 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        // [تعديل 1]: استدعاء دالة تحديث البروفايل للأسماء الظاهرة 👤
+        import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        // [تعديل 2]: استدعاء قاعدة البيانات لحجز الـ Username فريداً مئة بالمئة 🔒
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // بيانات السيرفر السحابي الخاصة بك 🌟
         const firebaseConfig = {
           apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
           authDomain: "host-the-future-b9ef5.firebaseapp.com",
@@ -208,15 +209,18 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getDatabase(app); // تشغيل الـ Database
 
         function handleVerification() {
-            // حساب وقت عشوائي بالملي ثانية بين 10 ثواني (10000) و 15 ثانية (15000) 🎯
             const randomLoadingTime = Math.floor(Math.random() * (15000 - 10000 + 1)) + 10000;
             
             const urlParams = new URLSearchParams(window.location.search);
             const action = urlParams.get('action');
             const email = urlParams.get('email');
             const key = urlParams.get('key');
+            
+            // استقبال المتغيرات الجديدة من الرابط 📥
+            const displayName = urlParams.get('name');
             const user = urlParams.get('user');
             const linkTime = urlParams.get('time');
 
@@ -228,17 +232,14 @@
             const cardHeading = document.getElementById('cardHeading');
             const cardMessage = document.getElementById('cardMessage');
 
-            // بعد انتهاء مدة الـ Loading العشوائية بنبدأ الفحص والتسجيل
             setTimeout(() => {
                 
                 if (action === 'verify' && email && key && linkTime) {
                     const currentTime = Date.now();
                     const timeDifference = currentTime - parseInt(linkTime);
-                    const tenMinutesInMs = 10 * 60 * 1000; // 10 دقائق
+                    const tenMinutesInMs = 10 * 60 * 1000;
 
-                    // [1] فحص انتهاء صلاحية الرابط (الـ 10 دقائق)
                     if (timeDifference > tenMinutesInMs) {
-                        // تحويل الكرت لشكل الخطأ الفخم
                         cardIconBox.style.borderColor = "#ff3b3b";
                         cardIconBox.style.background = "rgba(255, 59, 59, 0.05)";
                         cardIconBox.style.boxShadow = "0 0 20px rgba(255, 59, 59, 0.2)";
@@ -248,34 +249,51 @@
                         cardHeading.innerText = "Link Expired!";
                         cardMessage.innerText = "This unique activation link has expired (valid for 10 minutes only). Please return to the homepage and create a new account to get a fresh link.";
                         
-                        // إخفاء الـ Loader وإظهار كرت الخطأ
                         loader.style.opacity = '0';
                         setTimeout(() => loader.style.display = 'none', 500);
                         successCard.classList.add('show-card');
                         return;
                     }
 
-                    // [2] فك التشفير والتسجيل في الفايربيز
                     const decodedPassword = atob(key);
-                    const decodedUser = decodeURIComponent(user || 'User');
+                    const decodedDisplay = decodeURIComponent(displayName || 'User');
+                    const decodedUser = decodeURIComponent(user || 'user123').trim().toLowerCase(); // تنظيف الـ Username
 
                     createUserWithEmailAndPassword(auth, email, decodedPassword)
                         .then((userCredential) => {
-                            // تفعيل الإذن بالدخول في المتصفح
-                            localStorage.setItem('accountVerified', 'true');
-                            localStorage.setItem('verifiedEmail', 'true');
+                            const firebaseUser = userCredential.user;
 
-                            // تحديث نصوص الكرت باسم اليوزر
-                            cardHeading.innerText = "Email Verified Successfully";
-                            cardMessage.innerHTML = `Welcome back <b>${decodedUser}</b>!<br>Your identity has been confirmed and your account is now fully activated in The Future network.`;
+                            // [3]: تحديث اسم المستخدم الظاهر في ملفه الشخصي للترحيب به 👤🌟
+                            updateProfile(firebaseUser, {
+                                displayName: decodedDisplay
+                            }).then(async () => {
+                                
+                                // [4]: قفل الخرسانة السحابية! حجز الـ Username فوراً لمنع التكرار
+                                await set(ref(db, 'takenUsernames/' + decodedUser), {
+                                    ownerEmail: email,
+                                    uid: firebaseUser.uid
+                                });
 
-                            // اختفاء شاشة التحميل السينمائي وظهور الكرت الأخضر
-                            loader.style.opacity = '0';
-                            setTimeout(() => loader.style.display = 'none', 500);
-                            successCard.classList.add('show-card');
+                                // [5]: إنشاء الداتا الكاملة لليوزر للتحكم بها مستقبلاً في الـ Dashboard
+                                await set(ref(db, 'users/' + firebaseUser.uid), {
+                                    displayName: decodedDisplay,
+                                    username: decodedUser,
+                                    email: email,
+                                    createdAt: Date.now()
+                                });
+
+                                localStorage.setItem('accountVerified', 'true');
+                                localStorage.setItem('verifiedEmail', 'true');
+
+                                cardHeading.innerText = "Email Verified Successfully";
+                                cardMessage.innerHTML = `Welcome <b>${decodedDisplay}</b> (@${decodedUser})!<br>Your identity has been confirmed and your account is now fully activated in The Future network.`;
+
+                                loader.style.opacity = '0';
+                                setTimeout(() => loader.style.display = 'none', 500);
+                                successCard.classList.add('show-card');
+                            });
                         })
                         .catch((error) => {
-                            // لو مسجل قبل كده
                             if (error.code === 'auth/email-already-in-use') {
                                 cardIconBox.style.borderColor = "#f59e0b";
                                 cardIconBox.style.background = "rgba(245, 158, 11, 0.05)";
@@ -286,7 +304,6 @@
                                 cardHeading.innerText = "Already Activated";
                                 cardMessage.innerText = "This email is already verified and saved in our cloud server. You can head straight to login.";
                             } else {
-                                // أي خطأ سيرفر آخر
                                 cardIconBox.style.borderColor = "#ff3b3b";
                                 cardIcon.className = "fa-solid fa-circle-xmark";
                                 cardIcon.style.color = "#ff3b3b";
@@ -300,7 +317,6 @@
                         });
 
                 } else {
-                    // رابط ملعوب فيه أو ناقص توكنز
                     cardIconBox.style.borderColor = "#ff3b3b";
                     cardIconBox.style.background = "rgba(255, 59, 59, 0.05)";
                     cardIcon.className = "fa-solid fa-circle-xmark";
