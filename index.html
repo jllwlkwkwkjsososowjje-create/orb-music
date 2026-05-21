@@ -525,41 +525,52 @@
             <div class="switch-auth-mode" id="switchRegBox">Don't have an account? <span onclick="openAuthModal('register')">New account</span></div>
         </div>
 
+
         <div class="auth-modal" id="registerModal" style="display:none;">
             <span class="close-btn" onclick="closeAuthModal()">&times;</span>
             <div class="auth-title" id="modalRegTitle">Create New Account</div>
             <form onsubmit="handleRegisterSubmit(event)">
+                
+                <div class="input-group">
+                    <label id="lblRegName">Display Name</label>
+                    <input type="text" id="regName" required placeholder="e.g. Enzo Developer">
+                </div>
+
                 <div class="input-group">
                     <label id="lblRegUser">Username</label>
-                    <input type="text" id="regUser" required placeholder="e.g. enzo_dev">
+                    <input type="text" id="regUser" required placeholder="Johnny_Developer">
                 </div>
+
                 <div class="input-group">
                     <label id="lblRegEmail">Email Address</label>
                     <input type="email" id="regEmail" required placeholder="yourname@gmail.com">
                 </div>
+
                 <div class="input-group">
                     <label id="lblRegPass">Password</label>
                     <input type="password" id="regPassword" required placeholder="••••••••">
                 </div>
+
                 <div class="input-group">
                     <label id="lblRegConfirm">Confirm Password</label>
                     <input type="password" id="regConfirmPassword" required placeholder="••••••••">
                 </div>
+
                 <div class="captcha-box">
                     <input type="checkbox" id="captchaCheckReg" required>
                     <label id="lblRegRobot" for="captchaCheckReg" style="font-size: 0.8rem; color: #94a3b8; cursor: pointer;">I am not a robot</label>
                     <i class="fa-solid fa-shield-halved" style="color: #34d399; margin-left: auto;"></i>
                 </div>
+
                 <button type="submit" class="action-btn btn-start" id="btnRegSubmit" style="margin-bottom:0; background:#34d399; color:#000;">Verify Email</button>
             </form>
             <div class="switch-auth-mode" id="switchLogBox">Already have an account? <span onclick="openAuthModal('login')">Login</span></div>
         </div>
-    </div>
-
+        
     <script>
         const currentLang = localStorage.getItem('siteLang') || 'en';
 
-        const translations = {
+const translations = {
             en: {
                 soonText: "SOON",
                 oauthGoogle: "Connecting to Google...",
@@ -597,6 +608,7 @@
                 divLogOauth: "Or Sign In With",
                 switchRegBox: 'Don\'t have an account? <span onclick="openAuthModal(\'register\')">New account</span>',
                 modalRegTitle: "Create New Account",
+                lblRegName: "Display Name", // الترجمة الإنجليزية الجديدة 👤
                 lblRegUser: "Username",
                 lblRegEmail: "Email Address",
                 lblRegPass: "Password",
@@ -620,7 +632,6 @@
                 activationError: "❌ خطأ سحابي أثناء تفعيل الحساب: ",
                 loginSuccess: "✅ تم التحقق والمطابقة! جاري تحويلك إلى لوحة التحكم الشخصية...",
                 loginError: "❌ خطأ في الدخول: البريد غير مسجل (لم يتم تفعيله بعد) أو كلمة المرور غير صحيحة.",
-                
                 cardTitle: "البنية التحتية السحابية",
                 cardDesc: "قم بنشر بيئات عالية الأداء فوراً داخل الشبكة السحابية.",
                 lblFree: "مجاني",
@@ -642,6 +653,7 @@
                 divLogOauth: "أو الدخول بواسطة",
                 switchRegBox: 'ليس لديك حساب؟ <span onclick="openAuthModal(\'register\')">حساب جديد</span>',
                 modalRegTitle: "إنشاء حساب جديد",
+                lblRegName: "الاسم الظاهر",
                 lblRegUser: "اسم المستخدم",
                 lblRegEmail: "البريد الإلكتروني",
                 lblRegPass: "كلمة المرور",
@@ -742,172 +754,284 @@
         function closeAuthModal() { document.getElementById('authOverlay').classList.remove('active'); }
     </script>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        // ضفنا هنا دالة fetchSignInMethodsForEmail للفحص المسبق
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    // [تحديث سحري]: استدعاء الموديولات اللازمة لجوجل والتحقق السحابي 🛰️
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
+      authDomain: "host-the-future-b9ef5.firebaseapp.com",
+      projectId: "host-the-future-b9ef5",
+      storageBucket: "host-the-future-b9ef5.firebasestorage.app",
+      messagingSenderId: "613938151767",
+      appId: "1:613938151767:web:f3bb0d95f14cc8d1cb7e12",
+      measurementId: "G-2B5YWFC4VV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app); // تشغيل قاعدة البيانات السحابية
+    const googleProvider = new GoogleAuthProvider(); // محرك تشغيل جوجل
+
+    // [تكتيك التوجيه التلقائي]: لو مسجل دخول، طيران على اللوحة ومينفعش يقعد هنا ✈️🔒
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.location.href = 'dashboard.html';
+        }
+    });
+
+    // ==========================================
+    // 🌐 [1] نظام تسجيل الدخول بواسطة جـوجـل (Google OAuth)
+    // ==========================================
+    window.handleGoogleLogin = function() {
+        const t = translations[currentLang];
+        showCyberToast(t.oauthGoogle); // إشعار جاري الاتصال بجوجل
+
+        signInWithPopup(auth, googleProvider)
+            .then(async (result) => {
+                const user = result.user;
+                
+                // تنظيف وصناعة يوزر نيم تلقائي مشتق من الإيميل عشان نسيفه في قاعدة البيانات
+                const baseUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+                const randomId = Math.random().toString(36).substring(2, 6);
+                const finalUsername = `${baseUsername}_${randomId}`;
+
+                // فحص هل المستخدم مسجل عندنا في الـ Realtime Database من قبل؟
+                const userRef = ref(db, 'users/' + user.uid);
+                const userSnapshot = await get(userRef);
+
+                if (!userSnapshot.exists()) {
+                    // لو أول مرة يسجل بجوجل.. نحجز له اليوزر نيم التلقائي سحابياً فوراً 🔒
+                    await set(ref(db, 'takenUsernames/' + finalUsername), {
+                        ownerEmail: user.email,
+                        uid: user.uid
+                    });
+
+                    // حفظ بروفايله بالكامل
+                    await set(userRef, {
+                        displayName: user.displayName,
+                        username: finalUsername,
+                        email: user.email,
+                        createdAt: Date.now()
+                    });
+                }
+
+                showCyberToast(t.loginSuccess);
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+            })
+            .catch((error) => {
+                console.error(error);
+                showCyberToast("❌ Google Login Failed: " + error.message);
+            });
+    };
+
+    // ==========================================
+    // 🌐 [2] نظام تسجيل الدخول بواسطة ديـسـكـورد (Discord OAuth2)
+    // ==========================================
+    window.handleDiscordLogin = function() {
+        const t = translations[currentLang];
+        showCyberToast(t.oauthDiscord);
+
+        // هنا بنوجه اليوزر لرابط بورتال الديسكورد الرسمي بتاعك عشان يوافق على الصلاحيات ويرجع للـ Dashboard
+        const clientId = "YOUR_DISCORD_CLIENT_ID"; // استبدل هذا برقم الـ Client ID الخاص ببوتك مستقبلاً
+        const redirectUri = encodeURIComponent("https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/dashboard.html");
         
-        const firebaseConfig = {
-          apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
-          authDomain: "host-the-future-b9ef5.firebaseapp.com",
-          projectId: "host-the-future-b9ef5",
-          storageBucket: "host-the-future-b9ef5.firebasestorage.app",
-          messagingSenderId: "613938151767",
-          appId: "1:613938151767:web:f3bb0d95f14cc8d1cb7e12",
-          measurementId: "G-2B5YWFC4VV"
-        };
+        const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=identify%20email`;
+        
+        window.location.href = discordAuthUrl;
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    // ==========================================
+    // 📩 [3] دالة فحص الحساب والـ Username أولاً سحابياً ثم إرسال الإيميل
+    // ==========================================
+    window.handleRegisterSubmit = async function(e) {
+        e.preventDefault();
+        const t = translations[currentLang];
+        
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const confirmPassword = document.getElementById('regConfirmPassword').value;
+        
+        // الخانات المحدثة (الاسم الظاهر والـ Username الفريد) 👤
+        const displayName = document.getElementById('regName') ? document.getElementById('regName').value : 'User';
+        const username = document.getElementById('regUser').value.trim().toLowerCase(); // تنظيف الاسم
+        
+        // [فحص 1] تطابق كلمات المرور
+        if (password !== confirmPassword) {
+            showCyberToast(t.passMismatch);
+            return;
+        }
 
-        // [1] دالة فحص الحساب أولاً سحابياً ثم إرسال الإيميل في حالة السلامة
-        window.handleRegisterSubmit = function(e) {
-            e.preventDefault();
-            const t = translations[currentLang];
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        
+        // تحويل الزر لحالة الفحص والتحقق من السيرفر
+        submitBtn.innerText = currentLang === 'ar' ? "جاري فحص البيانات..." : "Checking data...";
+        submitBtn.disabled = true;
+
+        try {
+            // [فحص 2] الفحص السحابي الفوري لليوزر نيم 🕵️‍♂️🔒
+            const usernameRef = ref(db, 'takenUsernames/' + username);
+            const usernameSnapshot = await get(usernameRef);
+
+            if (usernameSnapshot.exists()) {
+                const errorMsg = currentLang === 'ar' ? "❌ اسم المستخدم هذا مأخوذ بالفعل! اختر اسماً آخر." : "❌ Username is already taken! Choose another.";
+                showCyberToast(errorMsg);
+                submitBtn.innerText = t.btnRegSubmit;
+                submitBtn.disabled = false;
+                return; // وقف العملية فوراً ولا ترسل أي شيء!
+            }
+
+            // [فحص 3] الفحص السحابي الفوري للإيميل 🛰️
+            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+            if (signInMethods.length > 0) {
+                showCyberToast(t.alreadyActivated);
+                submitBtn.innerText = t.btnRegSubmit;
+                submitBtn.disabled = false;
+                return; // وقف العملية فوراً!
+            }
+
+            // إذا كانت البيانات كلها نظيفة وغير مسجلة، نبدأ عملية التشفير والإرسال 🚀
+            submitBtn.innerText = t.sendingEmail;
+
+            const timestamp = Date.now(); 
+            const randomToken = Math.random().toString(36).substring(2, 10); 
+
+            const encodedPass = btoa(password); 
+            const encodedDisplay = encodeURIComponent(displayName);
+            const encodedUser = encodeURIComponent(username);
             
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
-            const username = document.getElementById('regUser') ? document.getElementById('regUser').value : 'User';
+            // الرابط السينمائي متلغم بكل البيانات الجديدة
+            const verificationLink = `https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/verify.html?action=verify&email=${email}&key=${encodedPass}&name=${encodedDisplay}&user=${encodedUser}&time=${timestamp}&token=${randomToken}`;
+
+            const templateParams = {
+                user_email: email,
+                user_name: displayName, // نبعت الاسم الظاهر في إيميل الترحيب
+                verification_link: verificationLink, 
+                reply_to: "support@thefuture.com"
+            };
             
-            // [فحص 1] تطابق كلمات المرور
-            if (password !== confirmPassword) {
-                showCyberToast(t.passMismatch);
+            emailjs.send("service_z01ptyg", "template_mbb5nh5", templateParams)
+                .then(function() {
+                    showCyberToast(t.emailSuccess.replace("{email}", email));
+                    submitBtn.innerText = t.btnRegSubmit;
+                    submitBtn.disabled = false;
+                    closeAuthModal();
+                }, function(err) {
+                    showCyberToast(t.emailFailed);
+                    submitBtn.innerText = t.btnRegSubmit;
+                    submitBtn.disabled = false;
+                });
+
+        } catch (error) {
+            // حماية إضافية لو الفايربيز رفض الفحص بسبب أن الحساب مستخدم بالفعل
+            if (error.code === 'auth/email-already-in-use' || error.message.includes('already')) {
+                showCyberToast(t.alreadyActivated);
+            } else {
+                showCyberToast(t.activationError + error.message);
+            }
+            submitBtn.innerText = t.btnRegSubmit;
+            submitBtn.disabled = false;
+        }
+    };
+
+    // [4] فحص طابع الوقت والتوكنز التلقائي وحجز البيانات عند الضغط على الرابط من الإيميل
+    function checkVerificationRoute() {
+        const t = translations[currentLang];
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        const email = urlParams.get('email');
+        const key = urlParams.get('key');
+        const displayName = urlParams.get('name');
+        const user = urlParams.get('user');
+        const linkTime = urlParams.get('time'); 
+
+        if (action === 'verify' && email && key && linkTime) {
+            const currentTime = Date.now();
+            const timeDifference = currentTime - parseInt(linkTime);
+            const tenMinutesInMs = 10 * 60 * 1000;
+
+            if (timeDifference > tenMinutesInMs) {
+                showCyberToast(t.linkExpired);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                openAuthModal('register'); 
                 return;
             }
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerText;
-            
-            // تحويل الزر لحالة الفحص والتحقق من السيرفر
-            submitBtn.innerText = currentLang === 'ar' ? "جاري فحص الحساب..." : "Checking account...";
-            submitBtn.disabled = true;
+            showCyberToast(t.validatingToken);
+            const decodedPassword = atob(key);
+            const decodedDisplay = decodeURIComponent(displayName || 'User');
+            const decodedUser = decodeURIComponent(user || 'user123').trim().toLowerCase();
 
-            // [فحص 2] الفحص السحابي الفوري قبل أي إرسال 🛰️
-            fetchSignInMethodsForEmail(auth, email)
-                .then((signInMethods) => {
-                    // لو المصفوفة رجعت فيها بيانات، يعني الإيميل ده محجوز ومسجل مسبقاً
-                    if (signInMethods.length > 0) {
-                        showCyberToast(t.alreadyActivated);
-                        submitBtn.innerText = t.btnRegSubmit;
-                        submitBtn.disabled = false;
-                        return; // وقف العملية فوراً ولا ترسل أي شيء!
-                    }
+            createUserWithEmailAndPassword(auth, email, decodedPassword)
+                .then((userCredential) => {
+                    const firebaseUser = userCredential.user;
 
-                    // إذا كان الحساب نظيف وغير مسجل، نبدأ عملية التشفير والإرسال الـ 10 دقائق 🚀
-                    submitBtn.innerText = t.sendingEmail;
-
-                    const timestamp = Date.now(); 
-                    const randomToken = Math.random().toString(36).substring(2, 10); 
-
-                    const encodedPass = btoa(password); 
-                    const encodedUser = encodeURIComponent(username);
-                    
-                    const verificationLink = `https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/verify.html?action=verify&email=${email}&key=${encodedPass}&user=${encodedUser}&time=${timestamp}&token=${randomToken}`;
-
-                    const templateParams = {
-                        user_email: email,
-                        user_name: username,
-                        verification_link: verificationLink, 
-                        reply_to: "support@thefuture.com"
-                    };
-                    
-                    emailjs.send("service_z01ptyg", "template_mbb5nh5", templateParams)
-                        .then(function() {
-                            showCyberToast(t.emailSuccess.replace("{email}", email));
-                            submitBtn.innerText = t.btnRegSubmit;
-                            submitBtn.disabled = false;
-                            closeAuthModal();
-                        }, function(err) {
-                            showCyberToast(t.emailFailed);
-                            submitBtn.innerText = t.btnRegSubmit;
-                            submitBtn.disabled = false;
+                    // حفظ الاسم الظاهر جوه الـ Profile بتاع الفايربيز 👤
+                    updateProfile(firebaseUser, {
+                        displayName: decodedDisplay
+                    }).then(async () => {
+                        // [قفل الخرسانة]: حجز اليوزر نيم فوراً في قاعدة البيانات السحابية عشان محدش ياخده 🔒
+                        await set(ref(db, 'takenUsernames/' + decodedUser), {
+                            ownerEmail: email,
+                            uid: firebaseUser.uid
                         });
+
+                        // حفظ إضافي لمعلومات المستخدم تحت الـ UID بتاعه للتحكم مستقبلاً
+                        await set(ref(db, 'users/' + firebaseUser.uid), {
+                            displayName: decodedDisplay,
+                            username: decodedUser,
+                            email: email,
+                            createdAt: Date.now()
+                        });
+
+                        localStorage.setItem('accountVerified', 'true');
+                        localStorage.setItem('verifiedEmail', 'true');
+                        showCyberToast(t.activationSuccess.replace("{user}", decodedDisplay));
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        openAuthModal('login');
+                    });
                 })
                 .catch((error) => {
-                    // حماية إضافية لو الفايربيز رفض الفحص بسبب أن الحساب مستخدم بالفعل
-                    if (error.code === 'auth/email-already-in-use' || error.message.includes('already')) {
+                    if (error.code === 'auth/email-already-in-use') {
                         showCyberToast(t.alreadyActivated);
                     } else {
                         showCyberToast(t.activationError + error.message);
                     }
-                    submitBtn.innerText = t.btnRegSubmit;
-                    submitBtn.disabled = false;
-                });
-        };
-
-        // [2] فحص طابع الوقت والتوكنز التلقائي مع الترجمة الفورية
-        function checkVerificationRoute() {
-            const t = translations[currentLang];
-            const urlParams = new URLSearchParams(window.location.search);
-            const action = urlParams.get('action');
-            const email = urlParams.get('email');
-            const key = urlParams.get('key');
-            const user = urlParams.get('user');
-            const linkTime = urlParams.get('time'); 
-
-            if (action === 'verify' && email && key && linkTime) {
-                const currentTime = Date.now();
-                const timeDifference = currentTime - parseInt(linkTime);
-                const tenMinutesInMs = 10 * 60 * 1000;
-
-                if (timeDifference > tenMinutesInMs) {
-                    showCyberToast(t.linkExpired);
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    openAuthModal('register'); 
-                    return;
-                }
-
-                showCyberToast(t.validatingToken);
-                const decodedPassword = atob(key);
-
-                createUserWithEmailAndPassword(auth, email, decodedPassword)
-                    .then((userCredential) => {
-                        localStorage.setItem('accountVerified', 'true');
-                        localStorage.setItem('verifiedEmail', 'true');
-                        showCyberToast(t.activationSuccess.replace("{user}", decodeURIComponent(user || 'User')));
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                        openAuthModal('login');
-                    })
-                    .catch((error) => {
-                        if (error.code === 'auth/email-already-in-use') {
-                            showCyberToast(t.alreadyActivated);
-                        } else {
-                            showCyberToast(t.activationError + error.message);
-                        }
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    });
-            }
-        }
-
-        window.addEventListener('load', checkVerificationRoute);
-
-        // [3] دالة تسجيل الدخول والتوست المطابق للغات
-        window.handleLoginSubmit = function(e) {
-            e.preventDefault();
-            const t = translations[currentLang];
-            
-            const email = document.getElementById('logEmail').value;
-            const password = document.getElementById('logPassword').value;
-
-            signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    localStorage.setItem('accountVerified', 'true');
-                    showCyberToast(t.loginSuccess);
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 2000);
-                })
-                .catch((error) => {
-                    showCyberToast(t.loginError);
                 });
-        };
-    </script>
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('open') === 'login') { openAuthModal('login'); }
-        });
-    </script>
+        }
+    }
+
+    window.addEventListener('load', checkVerificationRoute);
+
+    // [5] دالة تسجيل الدخول والتوست المطابق للغات والتوجيه للـ Dashboard
+    window.handleLoginSubmit = function(e) {
+        e.preventDefault();
+        const t = translations[currentLang];
+        
+        const email = document.getElementById('logEmail').value;
+        const password = document.getElementById('logPassword').value;
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                localStorage.setItem('accountVerified', 'true');
+                showCyberToast(t.loginSuccess);
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            })
+            .catch((error) => {
+                showCyberToast(t.loginError);
+            });
+    };
+</script>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('open') === 'login') { openAuthModal('login'); }
+    });
+</script>
 </body>
 </html>
