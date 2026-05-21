@@ -570,7 +570,7 @@
     <script>
         const currentLang = localStorage.getItem('siteLang') || 'en';
 
-const translations = {
+        const translations = {
             en: {
                 soonText: "SOON",
                 oauthGoogle: "Connecting to Google...",
@@ -608,7 +608,7 @@ const translations = {
                 divLogOauth: "Or Sign In With",
                 switchRegBox: 'Don\'t have an account? <span onclick="openAuthModal(\'register\')">New account</span>',
                 modalRegTitle: "Create New Account",
-                lblRegName: "Display Name", // الترجمة الإنجليزية الجديدة 👤
+                lblRegName: "Display Name",
                 lblRegUser: "Username",
                 lblRegEmail: "Email Address",
                 lblRegPass: "Password",
@@ -663,7 +663,7 @@ const translations = {
                 switchLogBox: 'لديك حساب بالفعل؟ <span onclick="openAuthModal(\'login\')">تسجيل الدخول</span>'
             }
         };
-
+            
         // دالة الـ Toast الفخمة والسينمائية المحمية
         function showCyberToast(msg) {
             const toast = document.getElementById('cyberToast');
@@ -715,6 +715,7 @@ const translations = {
             document.getElementById('switchRegBox').innerHTML = t.switchRegBox;
             
             document.getElementById('modalRegTitle').innerText = t.modalRegTitle;
+            document.getElementById('lblRegName').innerText = t.lblRegName;
             document.getElementById('lblRegUser').innerText = t.lblRegUser;
             document.getElementById('lblRegEmail').innerText = t.lblRegEmail;
             document.getElementById('lblRegPass').innerText = t.lblRegPass;
