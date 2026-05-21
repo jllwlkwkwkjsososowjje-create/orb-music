@@ -857,7 +857,7 @@ const translations = {
         e.preventDefault();
         const t = translations[currentLang];
         
-        const email = document.getElementById('regEmail').value;
+        const email = document.getElementById('regEmail').value.trim().toLowerCase();
         const password = document.getElementById('regPassword').value;
         const confirmPassword = document.getElementById('regConfirmPassword').value;
         const displayName = document.getElementById('regName') ? document.getElementById('regName').value : 'User';
@@ -873,6 +873,7 @@ const translations = {
         submitBtn.disabled = true;
 
         try {
+            // [فحص 1] الفحص السحابي الفوري لليوزر نيم 🕵️‍♂️🔒
             const usernameRef = ref(db, 'takenUsernames/' + username);
             const usernameSnapshot = await get(usernameRef);
 
@@ -884,14 +885,29 @@ const translations = {
                 return; 
             }
 
-            const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-            if (signInMethods.length > 0) {
+            // [فحص 2 التكتيكي البديل]: فحص الإيميل جوه قاعدة البيانات مباشرة لمنع تعليق الزرار 🛰️
+            const usersRef = ref(db, 'users');
+            const usersSnapshot = await get(usersRef);
+            let emailExists = false;
+
+            if (usersSnapshot.exists()) {
+                const usersData = usersSnapshot.val();
+                for (let userId in usersData) {
+                    if (usersData[userId].email && usersData[userId].email.toLowerCase() === email) {
+                        emailExists = true;
+                        break;
+                    }
+                }
+            }
+
+            if (emailExists) {
                 showCyberToast(t.alreadyActivated);
                 submitBtn.innerText = t.btnRegSubmit;
                 submitBtn.disabled = false;
                 return; 
             }
 
+            // إذا كانت البيانات كلها نظيفة وغير مسجلة، نبدأ عملية التشفير والإرسال 🚀
             submitBtn.innerText = t.sendingEmail;
 
             const timestamp = Date.now(); 
@@ -917,17 +933,15 @@ const translations = {
                     submitBtn.disabled = false;
                     closeAuthModal();
                 }, function(err) {
+                    console.error("EmailJS Error:", err);
                     showCyberToast(t.emailFailed);
                     submitBtn.innerText = t.btnRegSubmit;
                     submitBtn.disabled = false;
                 });
 
         } catch (error) {
-            if (error.code === 'auth/email-already-in-use' || error.message.includes('already')) {
-                showCyberToast(t.alreadyActivated);
-            } else {
-                showCyberToast(t.activationError + error.message);
-            }
+            console.error("Database Error:", error);
+            showCyberToast(t.activationError + error.message);
             submitBtn.innerText = t.btnRegSubmit;
             submitBtn.disabled = false;
         }
