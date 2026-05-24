@@ -505,7 +505,7 @@
         <div class="auth-modal" id="loginModal">
             <span class="close-btn" onclick="closeAuthModal()">&times;</span>
             <div class="auth-title" id="modalLoginTitle">Login</div>
-            <form onsubmit="handleLoginSubmit(event)">
+            <form id="loginForm">
                 <div class="input-group">
                     <label id="lblLogEmail">Email Address</label>
                     <input type="email" id="logEmail" required placeholder="name@example.com">
@@ -519,12 +519,12 @@
                     <label id="lblLogRobot" for="captchaCheckLogin" style="font-size: 0.8rem; color: #94a3b8; cursor: pointer;">I am not a robot</label>
                     <i class="fa-solid fa-shield-halved" style="color: #34d399; margin-left: auto;"></i>
                 </div>
-<button type="submit" class="action-btn btn-start" id="btnLogSubmit" style="margin-bottom:0;">Login</button>
+                <button type="submit" class="action-btn btn-start" id="btnLogSubmit" style="margin-bottom:0;">Login</button>
             </form>
             <div class="oauth-divider" id="divLogOauth">Or Sign In With</div>
             <div class="oauth-buttons">
-                <button class="oauth-btn" style="background:#fff; color:#000;" onclick="handleGoogleLogin()"><i class="fa-brands fa-google"></i> Google</button>
-                <button class="oauth-btn" style="background:#5865F2; color:#fff;" onclick="loginWithDiscord()"><i class="fa-brands fa-discord"></i> Discord</button>
+                <button class="oauth-btn" style="background:#fff; color:#000;" id="btnGoogleLogin"><i class="fa-brands fa-google"></i> Google</button>
+                <button class="oauth-btn" style="background:#5865F2; color:#fff;" id="btnDiscordLogin"><i class="fa-brands fa-discord"></i> Discord</button>
             </div>
             <div class="switch-auth-mode" id="switchRegBox">Don't have an account? <span onclick="openAuthModal('register')">New account</span></div>
         </div>
@@ -533,7 +533,7 @@
         <div class="auth-modal" id="registerModal" style="display:none;">
             <span class="close-btn" onclick="closeAuthModal()">&times;</span>
             <div class="auth-title" id="modalRegTitle">Create New Account</div>
-            <form onsubmit="handleRegisterSubmit(event)">
+            <form id="registerForm">
                 
                 <div class="input-group">
                     <label id="lblRegName">Display Name</label>
@@ -570,6 +570,7 @@
             </form>
             <div class="switch-auth-mode" id="switchLogBox">Already have an account? <span onclick="openAuthModal('login')">Login</span></div>
         </div>
+    </div>
         
     <script>
         const currentLang = localStorage.getItem('siteLang') || 'en';
@@ -760,9 +761,8 @@
     </script>
 
 <script type="module">
-    // [الحل السحري]: أضفنا initializeApp في السطر الأول عشان الفايربيز يشتغل بدون تعليق 🛰️
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     
     const firebaseConfig = {
@@ -780,10 +780,9 @@
     const db = getDatabase(app); 
     const googleProvider = new GoogleAuthProvider(); 
 
-    // [تكتيك التوجيه التلقائي]: لو مسجل دخول، طيران على اللوحة ومينفعش يقعد هنا ✈️🔒
+    // توجيه تلقائي
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // للتأكد إننا مش بنوجهه لو هو لسه راجع من رابط التحقق بالإيميل
             const urlParams = new URLSearchParams(window.location.search);
             if (!urlParams.get('action')) {
                 window.location.href = 'dashboard.html';
@@ -792,17 +791,17 @@
     });
 
     // ==========================================
-    // 🌐 [1] نظام تسجيل الدخول بواسطة جـوجـل (Google OAuth)
+    // 🌐 [1] ربط نظام جوجل من داخل الموديول بشكل آمن وعام
     // ==========================================
-    window.handleGoogleLogin = function() {
-        const t = translations[currentLang];
-        showCyberToast(t.oauthGoogle); 
+    const googleBtn = document.getElementById('btnGoogleLogin');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', () => {
+            const t = translations[currentLang];
+            showCyberToast(t.oauthGoogle); 
+            signInWithRedirect(auth, googleProvider);
+        });
+    }
 
-        // التوجيه التلقائي المضمون على الموبايل لمنع الحظر
-        signInWithRedirect(auth, googleProvider);
-    };
-
-    // لقط البيانات أوتوماتيك أول ما الصفحة تحمل للشخص اللي راجع من جوجل
     getRedirectResult(auth)
         .then(async (result) => {
             if (result && result.user) {
@@ -840,43 +839,32 @@
         });
 
     // ==========================================
-    // 🌐 [2] نظام تسجيل الدخول بواسطة ديـسـكـورد (Discord OAuth2)
+    // 🌐 [2] ربط نظام ديسكورد التكتيكي
     // ==========================================
-    // [تعديل اسم الدالة]: خليتها تطابق الـ HTML بالظبط عشان تشتغل فوراً ⚡
-    window.loginWithDiscord = function() {
-        const t = translations[currentLang];
-        showCyberToast(t.oauthDiscord);
+    const discordBtn = document.getElementById('btnDiscordLogin');
+    if (discordBtn) {
+        discordBtn.addEventListener('click', () => {
+            const t = translations[currentLang];
+            showCyberToast(t.oauthDiscord);
 
-        const clientId = "1505649534473339102"; 
-        const redirectUri = encodeURIComponent("https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/dashboard.html");
-        
-        const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=identify%20email`;
-        
-        window.location.href = discordAuthUrl;
-    };
+            const clientId = "1505649534473339102"; 
+            const redirectUri = encodeURIComponent("https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/dashboard.html");
+            const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=identify%20email`;
+            
+            window.location.href = discordAuthUrl;
+        });
+    }
 
     // ==========================================
-    // 📩 [3] دالة الطوارئ الذكية لفحص الحساب ومنع التعليق
+    // 📩 [3] الربط البرمجي المباشر والمحمي لإنشاء الحساب (الحل الجذري)
     // ==========================================
-    window.handleRegisterSubmit = async function(e) {
-        e.preventDefault();
-        
-        // تأمين جلب كائن الترجمات
-        let t;
-        try {
-            t = translations[currentLang];
-        } catch(err) {
-            alert("خطأ: قاموس التراجم غير معرف بشكل صحيح!");
-            return;
-        }
-        
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        
-        // 1. تحويل الزرار لوضع الفحص وتأمينه
-        submitBtn.innerText = currentLang === 'ar' ? "جاري فحص البيانات..." : "Checking data...";
-        submitBtn.style.pointerEvents = "none";
-
-        try {
+    const regForm = document.getElementById('registerForm');
+    if (regForm) {
+        regForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const t = translations[currentLang];
+            const submitBtn = document.getElementById('btnRegSubmit');
+            
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
@@ -885,108 +873,97 @@
             
             if (password !== confirmPassword) {
                 showCyberToast(t.passMismatch);
-                submitBtn.innerText = t.btnRegSubmit;
-                submitBtn.style.pointerEvents = "auto";
                 return;
             }
 
-            // --- فحص اتصال الفايربيز ---
-            if (typeof db === 'undefined' || typeof ref === 'undefined' || typeof get === 'undefined') {
-                throw new Error("الفحص السحابي فشل: كائنات الفايربيز (db, ref, get) غير معرّفة أو ناقصة الاستيراد فوق!");
-            }
+            // تجميد الزرار للتحقق
+            submitBtn.innerText = currentLang === 'ar' ? "جاري فحص البيانات..." : "Checking data...";
+            submitBtn.style.pointerEvents = "none";
 
-            // [فحص 1] اليوزر نيم 🕵️‍♂️🔒
-            const usernameRef = ref(db, 'takenUsernames/' + username);
-            const usernameSnapshot = await get(usernameRef);
+            try {
+                // [فحص 1] اليوزر نيم سحابياً
+                const usernameRef = ref(db, 'takenUsernames/' + username);
+                const usernameSnapshot = await get(usernameRef);
 
-            if (usernameSnapshot.exists()) {
-                const errorMsg = currentLang === 'ar' ? "❌ اسم المستخدم هذا مأخوذ بالفعل! اختر اسماً آخر." : "❌ Username is already taken! Choose another.";
-                showCyberToast(errorMsg);
-                submitBtn.innerText = t.btnRegSubmit;
-                submitBtn.style.pointerEvents = "auto";
-                return; 
-            }
+                if (usernameSnapshot.exists()) {
+                    const errorMsg = currentLang === 'ar' ? "❌ اسم المستخدم هذا مأخوذ بالفعل! اختر اسماً آخر." : "❌ Username is already taken! Choose another.";
+                    showCyberToast(errorMsg);
+                    submitBtn.innerText = t.btnRegSubmit;
+                    submitBtn.style.pointerEvents = "auto";
+                    return; 
+                }
 
-            // [فحص 2]: فحص الإيميل 🛰️
-            const usersRef = ref(db, 'users');
-            const usersSnapshot = await get(usersRef);
-            let emailExists = false;
+                // [فحص 2] فحص تكرار الإيميل
+                const usersRef = ref(db, 'users');
+                const usersSnapshot = await get(usersRef);
+                let emailExists = false;
 
-            if (usersSnapshot.exists()) {
-                const usersData = usersSnapshot.val();
-                for (let userId in usersData) {
-                    if (usersData[userId].email && usersData[userId].email.toLowerCase() === email) {
-                        emailExists = true;
-                        break;
+                if (usersSnapshot.exists()) {
+                    const usersData = usersSnapshot.val();
+                    for (let userId in usersData) {
+                        if (usersData[userId].email && usersData[userId].email.toLowerCase() === email) {
+                            emailExists = true;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (emailExists) {
-                showCyberToast(t.alreadyActivated);
+                if (emailExists) {
+                    showCyberToast(t.alreadyActivated);
+                    submitBtn.innerText = t.btnRegSubmit;
+                    submitBtn.style.pointerEvents = "auto";
+                    return; 
+                }
+
+                // الانتقال لمرحلة الإرسال
+                submitBtn.innerText = t.sendingEmail;
+
+                const timestamp = Date.now(); 
+                const randomToken = Math.random().toString(36).substring(2, 10); 
+                const encodedPass = btoa(password); 
+                const encodedDisplay = encodeURIComponent(displayName);
+                const encodedUser = encodeURIComponent(username);
+                
+                const verificationLink = `https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/index.html?action=verify&email=${email}&key=${encodedPass}&name=${encodedDisplay}&user=${encodedUser}&time=${timestamp}&token=${randomToken}`;
+
+                const templateParams = {
+                    user_email: email,
+                    user_name: displayName, 
+                    verification_link: verificationLink, 
+                    reply_to: "support@thefuture.com"
+                };
+                
+                emailjs.send("service_z01ptyg", "template_mbb5nh5", templateParams)
+                    .then(function() {
+                        showCyberToast(t.emailSuccess.replace("{email}", email));
+                        submitBtn.innerText = t.btnRegSubmit;
+                        submitBtn.style.pointerEvents = "auto";
+                        closeAuthModal();
+                    }, function(err) {
+                        console.error("EmailJS Error:", err);
+                        showCyberToast(t.emailFailed);
+                        submitBtn.innerText = t.btnRegSubmit;
+                        submitBtn.style.pointerEvents = "auto";
+                    });
+
+            } catch (error) {
+                console.error("Database Error Managed:", error);
+                showCyberToast(t.activationError + error.message);
+                // فك حتمي للتعليقة لو حدث عطل مفاجئ
                 submitBtn.innerText = t.btnRegSubmit;
                 submitBtn.style.pointerEvents = "auto";
-                return; 
             }
-
-            // إذا كانت البيانات كلها نظيفة، نبدأ عملية الإرسال 🚀
-            submitBtn.innerText = t.sendingEmail;
-
-            const timestamp = Date.now(); 
-            const randomToken = Math.random().toString(36).substring(2, 10); 
-            const encodedPass = btoa(password); 
-            const encodedDisplay = encodeURIComponent(displayName);
-            const encodedUser = encodeURIComponent(username);
-            
-            const verificationLink = `https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/index.html?action=verify&email=${email}&key=${encodedPass}&name=${encodedDisplay}&user=${encodedUser}&time=${timestamp}&token=${randomToken}`;
-
-            const templateParams = {
-                user_email: email,
-                user_name: displayName, 
-                verification_link: verificationLink, 
-                reply_to: "support@thefuture.com"
-            };
-            
-            // --- فحص الـ EmailJS ---
-            if (typeof emailjs === 'undefined') {
-                throw new Error("مكتبة EmailJS غير معرّفة أو لم يتم استدعاؤها في الـ Head!");
-            }
-
-            emailjs.send("service_z01ptyg", "template_mbb5nh5", templateParams)
-                .then(function() {
-                    showCyberToast(t.emailSuccess.replace("{email}", email));
-                    submitBtn.innerText = t.btnRegSubmit;
-                    submitBtn.style.pointerEvents = "auto";
-                    closeAuthModal();
-                }, function(err) {
-                    console.error("EmailJS Error:", err);
-                    showCyberToast(t.emailFailed);
-                    submitBtn.innerText = t.btnRegSubmit;
-                    submitBtn.style.pointerEvents = "auto";
-                });
-
-        } catch (error) {
-            // رادار الطوارئ: السطور دي مستحيل تخلي الزرار يعلق لو حصل أي كراش
-            console.error("🚨 كراش صامت تم قنصه بنجاح:", error);
-            
-            // هيطلع لك تنبيه بالسبب الحقيقي للتهنيج عشان نقفله
-            alert("⚠️ خطأ في السكربت الداخلي: " + error.message);
-            
-            showCyberToast("❌ Connection or Configuration Fault!");
-            submitBtn.innerText = t ? t.btnRegSubmit : "Verify Email";
-            submitBtn.style.pointerEvents = "auto";
-        }
-    };
+        });
+    }
 
     // ==========================================
-    // 📩 [4] فحص الرابط القادم من الإيميل وتفعيله سحابياً (النسخة المحمية)
+    // 📩 [4] فحص رابط الإيميل القادم وتفعيله
     // ==========================================
     window.checkVerificationRoute = function() {
         const t = translations[currentLang];
         const urlParams = new URLSearchParams(window.location.search);
         const action = urlParams.get('action');
         
-        // 🛡️ [تكتيك الحماية]: لو الشخص داخل الصفحة عادي ومش جاي من رابط الإيميل، اخرج فوراً
         if (action !== 'verify') {
             return; 
         }
@@ -1054,27 +1031,30 @@
     window.addEventListener('load', window.checkVerificationRoute);
 
     // ==========================================
-    // 📩 [5] دالة تسجيل الدخول العادي بالنموذج
+    // 📩 [5] الربط البرمجي المباشر لتسجيل الدخول العادي
     // ==========================================
-    window.handleLoginSubmit = function(e) {
-        e.preventDefault();
-        const t = translations[currentLang];
-        
-        const email = document.getElementById('logEmail').value;
-        const password = document.getElementById('logPassword').value;
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const t = translations[currentLang];
+            
+            const email = document.getElementById('logEmail').value;
+            const password = document.getElementById('logPassword').value;
 
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                localStorage.setItem('accountVerified', 'true');
-                showCyberToast(t.loginSuccess);
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
-            })
-            .catch((error) => {
-                showCyberToast(t.loginError);
-            });
-    };
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    localStorage.setItem('accountVerified', 'true');
+                    showCyberToast(t.loginSuccess);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                })
+                .catch((error) => {
+                    showCyberToast(t.loginError);
+                });
+        });
+    }
 </script>
 <script>
     window.addEventListener('DOMContentLoaded', () => {
