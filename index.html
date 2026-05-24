@@ -856,32 +856,46 @@
     };
 
     // ==========================================
-    // 📩 [3] دالة فحص الحساب والـ Username أولاً سحابياً ثم إرسال الإيميل
+    // 📩 [3] دالة الطوارئ الذكية لفحص الحساب ومنع التعليق
     // ==========================================
     window.handleRegisterSubmit = async function(e) {
         e.preventDefault();
-        const t = translations[currentLang];
-        const submitBtn = e.target.querySelector('button[type="submit"]');
         
-        const email = document.getElementById('regEmail').value.trim().toLowerCase();
-        const password = document.getElementById('regPassword').value;
-        const confirmPassword = document.getElementById('regConfirmPassword').value;
-        const displayName = document.getElementById('regName') ? document.getElementById('regName').value.trim() : 'User';
-        const username = document.getElementById('regUser').value.trim().toLowerCase(); 
-        
-        // التحقق من تطابق كلمة المرور فوراً قبل أي عملية سحابية
-        if (password !== confirmPassword) {
-            showCyberToast(t.passMismatch);
+        // تأمين جلب كائن الترجمات
+        let t;
+        try {
+            t = translations[currentLang];
+        } catch(err) {
+            alert("خطأ: قاموس التراجم غير معرف بشكل صحيح!");
             return;
         }
-
-        // تحويل الزرار لوضع الفحص وتأمينه ضد الضغط المتكرر
+        
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        
+        // 1. تحويل الزرار لوضع الفحص وتأمينه
         submitBtn.innerText = currentLang === 'ar' ? "جاري فحص البيانات..." : "Checking data...";
         submitBtn.style.pointerEvents = "none";
 
         try {
-            // [فحص 1] الفحص السحابي الفوري لليوزر نيم 🕵️‍♂️🔒
-            // ملحوظة: تأكد أنك مستورد ref و get من فايربيز في بداية السكربت للموديول
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const displayName = document.getElementById('regName') ? document.getElementById('regName').value.trim() : 'User';
+            const username = document.getElementById('regUser').value.trim().toLowerCase(); 
+            
+            if (password !== confirmPassword) {
+                showCyberToast(t.passMismatch);
+                submitBtn.innerText = t.btnRegSubmit;
+                submitBtn.style.pointerEvents = "auto";
+                return;
+            }
+
+            // --- فحص اتصال الفايربيز ---
+            if (typeof db === 'undefined' || typeof ref === 'undefined' || typeof get === 'undefined') {
+                throw new Error("الفحص السحابي فشل: كائنات الفايربيز (db, ref, get) غير معرّفة أو ناقصة الاستيراد فوق!");
+            }
+
+            // [فحص 1] اليوزر نيم 🕵️‍♂️🔒
             const usernameRef = ref(db, 'takenUsernames/' + username);
             const usernameSnapshot = await get(usernameRef);
 
@@ -893,7 +907,7 @@
                 return; 
             }
 
-            // [فحص 2 التكتيكي البديل]: فحص الإيميل جوه قاعدة البيانات مباشرة لمنع تعليق الزرار 🛰️
+            // [فحص 2]: فحص الإيميل 🛰️
             const usersRef = ref(db, 'users');
             const usersSnapshot = await get(usersRef);
             let emailExists = false;
@@ -915,17 +929,15 @@
                 return; 
             }
 
-            // إذا كانت البيانات كلها نظيفة وغير مسجلة، نبدأ عملية التشفير والإرسال 🚀
+            // إذا كانت البيانات كلها نظيفة، نبدأ عملية الإرسال 🚀
             submitBtn.innerText = t.sendingEmail;
 
             const timestamp = Date.now(); 
             const randomToken = Math.random().toString(36).substring(2, 10); 
-
             const encodedPass = btoa(password); 
             const encodedDisplay = encodeURIComponent(displayName);
             const encodedUser = encodeURIComponent(username);
             
-            // رابط التفعيل السحابي الفاخر الخاص بك
             const verificationLink = `https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/index.html?action=verify&email=${email}&key=${encodedPass}&name=${encodedDisplay}&user=${encodedUser}&time=${timestamp}&token=${randomToken}`;
 
             const templateParams = {
@@ -935,6 +947,11 @@
                 reply_to: "support@thefuture.com"
             };
             
+            // --- فحص الـ EmailJS ---
+            if (typeof emailjs === 'undefined') {
+                throw new Error("مكتبة EmailJS غير معرّفة أو لم يتم استدعاؤها في الـ Head!");
+            }
+
             emailjs.send("service_z01ptyg", "template_mbb5nh5", templateParams)
                 .then(function() {
                     showCyberToast(t.emailSuccess.replace("{email}", email));
@@ -949,10 +966,14 @@
                 });
 
         } catch (error) {
-            console.error("Database Error:", error);
-            showCyberToast(t.activationError + error.message);
-            // حماية الطوارئ: لو الفايربيز مش مستورد أو هنج، فك تعليقة الزرار فوراً هنا!
-            submitBtn.innerText = t.btnRegSubmit;
+            // رادار الطوارئ: السطور دي مستحيل تخلي الزرار يعلق لو حصل أي كراش
+            console.error("🚨 كراش صامت تم قنصه بنجاح:", error);
+            
+            // هيطلع لك تنبيه بالسبب الحقيقي للتهنيج عشان نقفله
+            alert("⚠️ خطأ في السكربت الداخلي: " + error.message);
+            
+            showCyberToast("❌ Connection or Configuration Fault!");
+            submitBtn.innerText = t ? t.btnRegSubmit : "Verify Email";
             submitBtn.style.pointerEvents = "auto";
         }
     };
