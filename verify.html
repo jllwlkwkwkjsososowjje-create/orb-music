@@ -194,8 +194,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         // [تعديل 1]: استدعاء دالة تحديث البروفايل للأسماء الظاهرة 👤
         import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        // [تعديل 2]: استدعاء قاعدة البيانات لحجز الـ Username فريداً مئة بالمئة 🔒
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        // [تعديل 2]: استدعاء دالة get لقراءة وفحص الداتا سحابياً 🔒
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
@@ -232,13 +232,14 @@
             const cardHeading = document.getElementById('cardHeading');
             const cardMessage = document.getElementById('cardMessage');
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 
                 if (action === 'verify' && email && key && linkTime) {
                     const currentTime = Date.now();
                     const timeDifference = currentTime - parseInt(linkTime);
                     const tenMinutesInMs = 10 * 60 * 1000;
 
+                    // [فحص 1]: التأكد من انتهاء صلاحية الرابط (10 دقائق)
                     if (timeDifference > tenMinutesInMs) {
                         cardIconBox.style.borderColor = "#ff3b3b";
                         cardIconBox.style.background = "rgba(255, 59, 59, 0.05)";
@@ -259,62 +260,97 @@
                     const decodedDisplay = decodeURIComponent(displayName || 'User');
                     const decodedUser = decodeURIComponent(user || 'user123').trim().toLowerCase(); // تنظيف الـ Username
 
-                    createUserWithEmailAndPassword(auth, email, decodedPassword)
-                        .then((userCredential) => {
-                            const firebaseUser = userCredential.user;
+                    try {
+                        // [فحص التكتيكي المضاف]: فحص الـ Username سحابياً أثناء الـ Loading ومنع الإنشاء فوراً لو مأخوذ
+                        const usernameRef = ref(db, 'takenUsernames/' + decodedUser);
+                        const usernameSnapshot = await get(usernameRef);
 
-                            // [3]: تحديث اسم المستخدم الظاهر في ملفه الشخصي للترحيب به 👤🌟
-                            updateProfile(firebaseUser, {
-                                displayName: decodedDisplay
-                            }).then(async () => {
-                                
-                                // [4]: قفل الخرسانة السحابية! حجز الـ Username فوراً لمنع التكرار
-                                await set(ref(db, 'takenUsernames/' + decodedUser), {
-                                    ownerEmail: email,
-                                    uid: firebaseUser.uid
+                        if (usernameSnapshot.exists()) {
+                            cardIconBox.style.borderColor = "#ff3b3b";
+                            cardIconBox.style.background = "rgba(255, 59, 59, 0.05)";
+                            cardIconBox.style.boxShadow = "0 0 20px rgba(255, 59, 59, 0.2)";
+                            cardIcon.className = "fa-solid fa-circle-xmark";
+                            cardIcon.style.color = "#ff3b3b";
+                            
+                            cardHeading.innerText = "Username Taken!";
+                            cardMessage.innerHTML = `The username <b>@${decodedUser}</b> has already been registered by someone else. Creation aborted. Please go back and pick another username.`;
+                            
+                            loader.style.opacity = '0';
+                            setTimeout(() => loader.style.display = 'none', 500);
+                            successCard.classList.add('show-card');
+                            return; // إيقاف تنفيذ الأكواد التالية وحماية الـ Firebase Auth من الإنشاء العشوائي
+                        }
+
+                        // إذا نجح الفحص واليوزر متاح.. يبدأ إنشاء الحساب الفعلي بـ Firebase Auth
+                        createUserWithEmailAndPassword(auth, email, decodedPassword)
+                            .then((userCredential) => {
+                                const firebaseUser = userCredential.user;
+
+                                // [3]: تحديث اسم المستخدم الظاهر في ملفه الشخصي للترحيب به 👤🌟
+                                updateProfile(firebaseUser, {
+                                    displayName: decodedDisplay
+                                }).then(async () => {
+                                    
+                                    // [4]: قفل الخرسانة السحابية! حجز الـ Username فوراً لمنع التكرار
+                                    await set(ref(db, 'takenUsernames/' + decodedUser), {
+                                        ownerEmail: email,
+                                        uid: firebaseUser.uid
+                                    });
+
+                                    // [5]: إنشاء الداتا الكاملة لليوزر للتحكم بها مستقبلاً في الـ Dashboard
+                                    await set(ref(db, 'users/' + firebaseUser.uid), {
+                                        displayName: decodedDisplay,
+                                        username: decodedUser,
+                                        email: email,
+                                        createdAt: Date.now()
+                                    });
+
+                                    localStorage.setItem('accountVerified', 'true');
+                                    localStorage.setItem('verifiedEmail', 'true');
+
+                                    cardHeading.innerText = "Email Verified Successfully";
+                                    cardMessage.innerHTML = `Welcome <b>${decodedDisplay}</b> (@${decodedUser})!<br>Your identity has been confirmed and your account is now fully activated in The Future network.`;
+
+                                    loader.style.opacity = '0';
+                                    setTimeout(() => loader.style.display = 'none', 500);
+                                    successCard.classList.add('show-card');
                                 });
+                            })
+                            .catch((error) => {
+                                if (error.code === 'auth/email-already-in-use') {
+                                    cardIconBox.style.borderColor = "#f59e0b";
+                                    cardIconBox.style.background = "rgba(245, 158, 11, 0.05)";
+                                    cardIconBox.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.2)";
+                                    cardIcon.className = "fa-solid fa-triangle-exclamation";
+                                    cardIcon.style.color = "#f59e0b";
 
-                                // [5]: إنشاء الداتا الكاملة لليوزر للتحكم بها مستقبلاً في الـ Dashboard
-                                await set(ref(db, 'users/' + firebaseUser.uid), {
-                                    displayName: decodedDisplay,
-                                    username: decodedUser,
-                                    email: email,
-                                    createdAt: Date.now()
-                                });
-
-                                localStorage.setItem('accountVerified', 'true');
-                                localStorage.setItem('verifiedEmail', 'true');
-
-                                cardHeading.innerText = "Email Verified Successfully";
-                                cardMessage.innerHTML = `Welcome <b>${decodedDisplay}</b> (@${decodedUser})!<br>Your identity has been confirmed and your account is now fully activated in The Future network.`;
+                                    cardHeading.innerText = "Already Activated";
+                                    cardMessage.innerText = "This email is already verified and saved in our cloud server. You can head straight to login.";
+                                } else {
+                                    cardIconBox.style.borderColor = "#ff3b3b";
+                                    cardIcon.className = "fa-solid fa-circle-xmark";
+                                    cardIcon.style.color = "#ff3b3b";
+                                    cardHeading.innerText = "Activation Failed";
+                                    cardMessage.innerText = "Server Error: " + error.message;
+                                }
 
                                 loader.style.opacity = '0';
                                 setTimeout(() => loader.style.display = 'none', 500);
                                 successCard.classList.add('show-card');
                             });
-                        })
-                        .catch((error) => {
-                            if (error.code === 'auth/email-already-in-use') {
-                                cardIconBox.style.borderColor = "#f59e0b";
-                                cardIconBox.style.background = "rgba(245, 158, 11, 0.05)";
-                                cardIconBox.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.2)";
-                                cardIcon.className = "fa-solid fa-triangle-exclamation";
-                                cardIcon.style.color = "#f59e0b";
 
-                                cardHeading.innerText = "Already Activated";
-                                cardMessage.innerText = "This email is already verified and saved in our cloud server. You can head straight to login.";
-                            } else {
-                                cardIconBox.style.borderColor = "#ff3b3b";
-                                cardIcon.className = "fa-solid fa-circle-xmark";
-                                cardIcon.style.color = "#ff3b3b";
-                                cardHeading.innerText = "Activation Failed";
-                                cardMessage.innerText = "Server Error: " + error.message;
-                            }
-
-                            loader.style.opacity = '0';
-                            setTimeout(() => loader.style.display = 'none', 500);
-                            successCard.classList.add('show-card');
-                        });
+                    } catch (dbError) {
+                        console.error("Verification DB Error:", dbError);
+                        cardIconBox.style.borderColor = "#ff3b3b";
+                        cardIcon.className = "fa-solid fa-circle-xmark";
+                        cardIcon.style.color = "#ff3b3b";
+                        cardHeading.innerText = "Database Checking Failed";
+                        cardMessage.innerText = "Error: " + dbError.message;
+                        
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.style.display = 'none', 500);
+                        successCard.classList.add('show-card');
+                    }
 
                 } else {
                     cardIconBox.style.borderColor = "#ff3b3b";
