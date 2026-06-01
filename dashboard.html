@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" id="htmlTag">
+<html lang="en" dir="ltr" id="htmlTag" class="notranslate" translate="no">
 
 <head>
     <meta charset="UTF-8" />
@@ -8,10 +8,10 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght=700;800&family=DM+Sans:wght=400;500;600&family=Cairo:wght=400;600;700;800&display=swap" rel="stylesheet" />
     
     <!-- ⚡ Remix Icon CDN الثابت والمعتمد لجميع الأيقونات ⚡ -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" class="notranslate" translate="no" />
 
     <style>
         :root {
@@ -134,7 +134,7 @@
         .item-label { display: block; font-size: 12px; font-weight: 600; }
         .item-sub { display: block; font-size: 10px; color: var(--text-muted); }
 
-        /* ── 📩 تحسين صندوق البريد والإشعارات على الموبايل ── */
+        /* ── 📩 صندوق البريد ── */
         .notif-panel { width: 340px; }
         
         @media (max-width: 480px) {
@@ -235,8 +235,14 @@
         html[dir="rtl"] .eye-btn { right: auto; left: 12px; }
         .eye-btn:hover { color: var(--accent); }
 
-        .btn-confirm { width: 100%; padding: 12px; background: var(--accent); color: #000; border-radius: 6px; font-weight: 700; font-size: 14px; margin-top: 12px; display: none; box-shadow: 0 0 15px var(--accent-glow); transition: all 0.3s ease; flex-shrink: 0; }
-        .btn-confirm.show-btn { display: block; animation: fadeInBtn 0.3s forwards; }
+        /* 🔒 تعديل أسلوب ظهور زر تأكيد كلمة المرور */
+        .btn-confirm { 
+            width: 100%; padding: 12px; background: var(--accent); color: #000; border-radius: 6px; 
+            font-weight: 700; font-size: 14px; margin-top: 12px; display: none; 
+            box-shadow: 0 0 15px var(--accent-glow); transition: opacity 0.3s ease, transform 0.3s ease; 
+            flex-shrink: 0; 
+        }
+        .btn-confirm.show-btn { display: block !important; animation: fadeInBtn 0.3s forwards; }
 
         @keyframes fadeInBtn {
             from { opacity: 0; transform: translateY(5px); }
@@ -251,10 +257,10 @@
     </style>
 </head>
 
-<body>
+<body class="notranslate" translate="no">
 
     <!-- ── NAVBAR ── -->
-    <nav class="navbar">
+    <nav class="navbar notranslate" translate="no">
         <a href="#" class="brand">
             <div class="brand-mark"><i class="ri-server-line"></i></div>
             <span class="brand-name">FUTURE<span>HOST</span></span>
@@ -263,7 +269,7 @@
         <div class="nav-right">
             <button class="lang-btn" id="langToggleBtn" onclick="toggleLanguage()">العربية</button>
             
-            <!-- 🔔 صندوق البريد الذكي -->
+            <!-- 🔔 صندوق البريد -->
             <div class="panel-wrap" style="position: relative;">
                 <button class="icon-btn" id="notifBellBtn" aria-label="Notifications">
                     <div class="notif-dot" id="bellDot"></div>
@@ -473,7 +479,6 @@
         let globalCachedUser = { displayName: "Cloud User", username: "user" }; 
         let userNotifications = {};
 
-        // ✨ نظام الترجمة الآمن والذكي المأخوذ فكرته من صفحة تسجيل الدخول لحماية الأيقونات ✨
         window.toggleLanguage = function() {
             currentLang = currentLang === "en" ? "ar" : "en";
             const html = document.getElementById('htmlTag');
@@ -589,7 +594,7 @@
                 bellDot.classList.remove('show-dot');
                 container.innerHTML = `
                     <div class="notif-empty">
-                        <i class="ri-mail-open-line"></i>
+                        <i class="ri-mail-open-line notranslate" translate="no"></i>
                         <span>${translations[currentLang].noNotif}</span>
                     </div>
                 `;
@@ -621,7 +626,7 @@
                     <div class="notif-body">${item.message || ''}</div>
                     <div class="notif-actions">
                         <button class="notif-del-btn" onclick="deleteNotification(event, '${key}')">
-                            <i class="ri-delete-bin-6-line"></i> ${currentLang === 'ar' ? 'حذف' : 'Delete'}
+                            <i class="ri-delete-bin-6-line notranslate" translate="no"></i> ${currentLang === 'ar' ? 'حذف' : 'Delete'}
                         </button>
                     </div>
                 `;
@@ -651,7 +656,6 @@
             }
         }
 
-        // 🛠️ حقن السيرفرات مع فصل كود الأيقونات تماماً داخل نود مستقل لمنع اختفائه عند الترجمة!
         function renderServersGrid() {
             const container = document.getElementById('serversContainer');
             const sampleServers = [
@@ -667,11 +671,11 @@
                 card.innerHTML = `
                     <div class="server-header">
                         <div class="server-name">
-                            <i class="${server.icon}" style="color: var(--accent); font-size: 18px;"></i> 
+                            <i class="${server.icon} notranslate" translate="no" style="color: var(--accent); font-size: 18px;"></i> 
                             <span class="srv-title" data-en="${server.nameEn}" data-ar="${server.nameAr}"></span>
                         </div>
                         <span class="status-badge ${server.status === 'online' ? 'status-online' : 'status-offline'}">
-                            <i class="ri-checkbox-blank-circle-fill" style="font-size: 8px;"></i>
+                            <i class="ri-checkbox-blank-circle-fill notranslate" translate="no" style="font-size: 8px;"></i>
                             <span class="status-text-node" data-en="${server.statusEn}" data-ar="${server.statusAr}"></span>
                         </span>
                     </div>
@@ -681,7 +685,7 @@
                         <div class="server-info-item"><span class="lbl-proxy"></span> <span class="proxy-text-node" data-en="${server.proxyEn}" data-ar="${server.proxyAr}"></span></div>
                     </div>
                     <button class="btn-manage" onclick="goToServer('${server.id}')">
-                        <i class="ri-settings-3-line"></i> <span class="lbl-manage-btn"></span>
+                        <i class="ri-settings-3-line notranslate" translate="no"></i> <span class="lbl-manage-btn"></span>
                     </button>
                 `;
                 container.appendChild(card);
@@ -689,7 +693,6 @@
             updateGridLanguage();
         }
 
-        // 🔄 دالة تحديث النصوص فقط دون لمس الأيقونات نهائياً
         function updateGridLanguage() {
             document.querySelectorAll('.srv-title').forEach(el => {
                 el.innerText = currentLang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
@@ -712,19 +715,25 @@
             const eyeIcon = document.getElementById('sharedEyeIcon');
             if (passInput.type === "password") {
                 passInput.type = "text"; confirmInput.type = "text";
-                eyeIcon.className = "ri-eye-line";
+                eyeIcon.className = "ri-eye-line notranslate";
             } else {
                 passInput.type = "password"; confirmInput.type = "password";
-                eyeIcon.className = "ri-eye-off-line";
+                eyeIcon.className = "ri-eye-off-line notranslate";
             }
         }
 
+        // 🔒 تحديث دالة فحص كلمات المرور لإظهار الزرار بشكل فوري وسليم
         window.checkPasswordInputs = function() {
             const pass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
             const btn = document.getElementById('confirmBtn');
-            if (pass.length >= 6 && pass === confirmPass) btn.classList.add('show-btn');
-            else btn.classList.remove('show-btn');
+            
+            // لو المستخدم بدأ يكتب وباسورد التطابق مش فاضي
+            if (pass.length >= 6 && pass === confirmPass) {
+                btn.classList.add('show-btn');
+            } else {
+                btn.classList.remove('show-btn');
+            }
         }
 
         const profileBtn = document.getElementById('profileBtn');
