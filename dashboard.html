@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght=700;800&family=DM+Sans:wght=400;500;600&family=Cairo:wght=400;600;700;800&display=swap" rel="stylesheet" />
     
-    <!-- Remix Icon CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" class="notranslate" translate="no" />
+    <!-- Remix Icon CDN الثابت والمعتمد لجميع الأيقونات -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
 
     <style>
         :root {
@@ -61,25 +61,17 @@
             z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
         }
 
-        .brand { display: flex; align-items: center; gap: 8px; margin-left: 4px; }
-        html[dir="rtl"] .brand { margin-left: 0; margin-right: 4px; }
-        
-        /* حل الأيقونات الجذري عبر الـ CSS ضد ترجمة جوجل */
+        .brand { display: flex; align-items: center; gap: 8px; }
         .brand-mark { font-size: 22px; color: var(--accent); text-shadow: 0 0 10px var(--accent); display: flex; align-items: center; }
-        .brand-mark::before { content: "\f124"; font-family: "remixicon" !important; }
-
         .brand-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
         .brand-name span { color: var(--accent); }
 
-        .nav-right { display: flex; align-items: center; gap: 8px; }
+        .nav-right { display: flex; align-items: center; gap: 6px; }
 
-        /* تعديل وزحزحة زر تغيير اللغة */
         .lang-btn {
-            padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--r);
+            padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--r);
             font-size: 11px; font-weight: 600; color: var(--text-muted); transition: all 0.2s;
-            margin-right: 6px;
         }
-        html[dir="rtl"] .lang-btn { margin-right: 0; margin-left: 6px; }
         .lang-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 
         .icon-btn {
@@ -88,19 +80,16 @@
             font-size: 18px; transition: all 0.2s;
         }
         .icon-btn:hover, .icon-btn.active { color: var(--accent); background: var(--bg-hover); }
-        .icon-btn i::before { font-family: "remixicon" !important; }
 
         .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: none; box-shadow: 0 0 8px #ef4444; }
         .notif-dot.show-dot { display: block; }
-        .nav-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+        .nav-divider { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
 
-        /* تعديل وزحزحة زر البروفايل عن حافة شاشة الموبايل الحادة */
         .profile-trigger {
             display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px;
             border-radius: 40px; border: 1px solid var(--border); transition: all .2s;
-            margin-right: 10px;
         }
-        html[dir="rtl"] .profile-trigger { padding: 4px 4px 4px 10px; margin-right: 0; margin-left: 10px; }
+        html[dir="rtl"] .profile-trigger { padding: 4px 4px 4px 10px; }
         .profile-trigger.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: var(--bg-hover); }
 
         .avatar {
@@ -114,14 +103,14 @@
 
         /* ── Dropdown Panels ────────────────────────── */
         .panel {
-            position: absolute; top: calc(100% + 12px); right: 10px; width: 280px;
+            position: absolute; top: calc(100% + 12px); right: 0; width: 280px;
             background: #0b071e; border: 1px solid var(--border); border-radius: var(--r-lg);
             box-shadow: 0 24px 64px rgba(0, 0, 0, .8), 0 0 0 1px rgba(0, 243, 255, 0.1);
             z-index: 999; overflow: hidden; opacity: 0;
             transform: translateY(-10px) scale(.95); transform-origin: top right;
             pointer-events: none; transition: all .25s cubic-bezier(.16, 1, .3, 1);
         }
-        html[dir="rtl"] .panel { right: auto; left: 10px; transform-origin: top left; }
+        html[dir="rtl"] .panel { right: auto; left: 0; transform-origin: top left; }
         .panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 
         .panel-user { padding: 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
@@ -146,15 +135,11 @@
         .item-sub { display: block; font-size: 10px; color: var(--text-muted); }
 
         /* ── صندوق البريد ── */
-        .notif-panel { width: 340px; right: 0; }
-        html[dir="rtl"] .notif-panel { left: 0; right: auto; }
+        .notif-panel { width: 340px; }
         
         @media (max-width: 480px) {
             .notif-panel {
-                position: fixed;
-                top: calc(var(--nav-h) + 10px);
-                left: 5%; right: 5%; width: 90% !important;
-                transform-origin: top center !important;
+                position: fixed; top: calc(var(--nav-h) + 10px); left: 5%; right: 5%; width: 90% !important; transform-origin: top center !important;
             }
         }
 
@@ -245,19 +230,14 @@
         html[dir="rtl"] .eye-btn { right: auto; left: 12px; }
         .eye-btn:hover { color: var(--accent); }
 
-        /* زر حفظ التعديلات بتأثير أنيميشن ناعم */
+        /* 🔒 زرار التغيير الانسيابي السريع */
         .btn-confirm { 
             width: 100%; padding: 12px; background: var(--accent); color: #000; border-radius: 6px; 
             font-weight: 700; font-size: 14px; margin-top: 12px; display: none; 
-            box-shadow: 0 0 15px var(--accent-glow); transition: all 0.3s cubic-bezier(.16, 1, .3, 1);
-            flex-shrink: 0; 
+            box-shadow: 0 0 15px var(--accent-glow); opacity: 0; transform: translateY(8px);
+            transition: opacity 0.3s ease, transform 0.3s ease; flex-shrink: 0; 
         }
-        .btn-confirm.show-btn { display: inline-flex !important; align-items: center; justify-content: center; animation: fadeInBtn 0.35s cubic-bezier(.16, 1, .3, 1) forwards; }
-
-        @keyframes fadeInBtn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .btn-confirm.show-btn { display: block !important; opacity: 1 !important; transform: translateY(0) !important; }
 
         .dev-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
         .dev-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 12px; border-radius: 10px; }
@@ -267,17 +247,17 @@
     </style>
 </head>
 
-<body class="notranslate" translate="no">
+<body>
 
     <!-- ── NAVBAR ── -->
-    <nav class="navbar notranslate" translate="no">
+    <nav class="navbar">
         <a href="#" class="brand">
-            <div class="brand-mark"></div>
+            <div class="brand-mark"><i class="ri-server-line"></i></div>
             <span class="brand-name">FUTURE<span>HOST</span></span>
         </a>
 
         <div class="nav-right">
-            <button class="lang-btn" id="langToggleBtn">العربية</button>
+            <button class="lang-btn" id="langToggleBtn" onclick="toggleLanguage()">العربية</button>
             
             <!-- 🔔 صندوق البريد -->
             <div class="panel-wrap" style="position: relative;">
@@ -289,7 +269,7 @@
                 <div class="panel notif-panel" id="notifPanel">
                     <div class="notif-header">
                         <h4><span id="lblNotifTitle">Inbox Mail</span></h4>
-                        <button class="clear-all-btn" id="clearAllNotificationsBtn"><span id="lblClearAll">Clear All</span></button>
+                        <button class="clear-all-btn" onclick="clearAllNotifications()"><span id="lblClearAll">Clear All</span></button>
                     </div>
                     <div class="notif-list" id="notifListContainer">
                         <div class="notif-empty">
@@ -302,7 +282,7 @@
 
             <div class="nav-divider"></div>
 
-            <!-- 👤 البروفايل المحمي والمزحزح -->
+            <!-- 👤 Profile Dropdown Menu -->
             <div class="panel-wrap" style="position: relative;" id="profileWrap">
                 <button class="profile-trigger" id="profileBtn">
                     <div class="avatar" id="avatarCircle">FH</div>
@@ -322,7 +302,7 @@
                     <div class="panel-section">
                         <div class="section-label"><span id="lblDashboard">Dashboard Options</span></div>
                         
-                        <div class="menu-item" id="menuServersList">
+                        <div class="menu-item" onclick="switchSection('servers')">
                             <div class="item-icon"><i class="ri-stack-line"></i></div>
                             <span class="item-text">
                                 <span class="item-label" id="lblServers">Servers List</span>
@@ -330,7 +310,7 @@
                             </span>
                         </div>
 
-                        <div class="menu-item" id="menuCreateServer">
+                        <div class="menu-item" onclick="handleCreateServer()">
                             <div class="item-icon" style="color: var(--accent);"><i class="ri-add-circle-line"></i></div>
                             <span class="item-text">
                                 <span class="item-label" id="lblCreateServer" style="color: var(--accent);">Create Server</span>
@@ -338,7 +318,7 @@
                             </span>
                         </div>
 
-                        <div class="menu-item" id="menuAccountSettings">
+                        <div class="menu-item" onclick="openSettingsModal()">
                             <div class="item-icon"><i class="ri-user-settings-line"></i></div>
                             <span class="item-text">
                                 <span class="item-label" id="lblAccountSettings">Account Settings</span>
@@ -351,11 +331,11 @@
 
                     <div class="panel-section">
                         <div class="section-label"><span id="lblDevTools">Developer Hub</span></div>
-                        <div class="menu-item" id="menuDeveloperArea">
+                        <div class="menu-item" onclick="openDevModal()">
                             <div class="item-icon"><i class="ri-code-s-slash-line"></i></div>
                             <span class="item-text"><span class="item-label" id="lblDeveloper">Developer Area</span></span>
                         </div>
-                        <div class="menu-item" id="menuTools">
+                        <div class="menu-item" onclick="switchSection('tools')">
                             <div class="item-icon"><i class="ri-tools-line"></i></div>
                             <span class="item-text"><span class="item-label" id="lblTools">Tools</span></span>
                         </div>
@@ -364,7 +344,7 @@
                     <div class="panel-divider"></div>
 
                     <div class="panel-section">
-                        <div class="menu-item danger" id="menuLogout">
+                        <div class="menu-item danger" onclick="handleLogout()">
                             <div class="item-icon"><i class="ri-logout-box-r-line"></i></div>
                             <span class="item-text"><span class="item-label" id="lblLogout">Log Out</span></span>
                         </div>
@@ -398,7 +378,7 @@
         <div class="settings-modal">
             <div class="modal-header">
                 <h3><i class="ri-shield-user-line" style="color: var(--accent);"></i> <span id="txtModalTitle">Profile Settings</span></h3>
-                <button class="close-modal-btn" id="closeSettingsModalBtn"><i class="ri-close-line"></i></button>
+                <button class="close-modal-btn" onclick="closeSettingsModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="modal-body-form">
                 <div class="form-group"><label id="lblFormDisplay">Display Name</label><input type="text" id="modalDisplayName" disabled></div>
@@ -409,19 +389,19 @@
                 <div class="form-group">
                     <label id="lblFormNewPass">New Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="newPassword" placeholder="••••••••">
-                        <button class="eye-btn" type="button" id="togglePasswordVisibilityBtn"><i class="ri-eye-off-line" id="sharedEyeIcon"></i></button>
+                        <input type="password" id="newPassword" placeholder="••••••••" oninput="checkPasswordInputs()">
+                        <button class="eye-btn" type="button" onclick="toggleSinglePasswordSystem()"><i class="ri-eye-off-line" id="sharedEyeIcon"></i></button>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label id="lblFormConfirmPass">Confirm Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="confirmPassword" placeholder="••••••••">
+                        <input type="password" id="confirmPassword" placeholder="••••••••" oninput="checkPasswordInputs()">
                     </div>
                 </div>
                 
-                <button class="btn-confirm" id="confirmBtn">Confirm Changes</button>
+                <button class="btn-confirm" id="confirmBtn" onclick="updateUserPassword()">Confirm Changes</button>
             </div>
         </div>
     </div>
@@ -431,7 +411,7 @@
         <div class="settings-modal" style="max-width: 400px;">
             <div class="modal-header">
                 <h3><i class="ri-git-branch-line" style="color: var(--accent);"></i> <span id="txtDevModalTitle">Host Founders</span></h3>
-                <button class="close-modal-btn" id="closeDevModalBtn"><i class="ri-close-line"></i></button>
+                <button class="close-modal-btn" onclick="closeDevModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="dev-grid">
                 <div class="dev-card">
@@ -485,16 +465,48 @@
             }
         };
 
-        let currentLang = "en";
+        // 🧠 استرجاع اللغة المحفوظة أو التعيين التلقائي لمنع مشاكل التحميل اللانهائي
+        let currentLang = localStorage.getItem('dashboard_lang') || "en";
+        document.getElementById('htmlTag').setAttribute('lang', currentLang);
+        document.getElementById('htmlTag').setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+
+        // 🚀 نظام كشف وحماية ذكي ضد ترجمة المتصفح العشوائية لعمل ريست نظيف
+        let isReloading = false;
+        const observer = new MutationObserver((mutations) => {
+            if (isReloading) return;
+            
+            for (let mutation of mutations) {
+                // الكشف لو جوجل أضاف كلاسات الترجمة أو لو الكود اتغير فجأة
+                const hasGoogleTranslateClass = document.documentElement.classList.contains('translated-ltr') || document.documentElement.classList.contains('translated-rtl');
+                const hasGoogleStyles = document.querySelector('iframe.goog-te-banner-frame') || document.getElementById('goog-gt-tt');
+                
+                if (hasGoogleTranslateClass || hasGoogleStyles) {
+                    isReloading = true;
+                    console.log("Google Translate Detected! Resetting dashboard...");
+                    // تخزين اللغة الحالية وإعادة تشغيل الصفحة فوراً بشكل سليم
+                    localStorage.setItem('dashboard_lang', currentLang);
+                    window.location.reload();
+                    break;
+                }
+            }
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'lang'] });
+
         let globalCachedUser = { displayName: "Cloud User", username: "user" }; 
         let userNotifications = {};
 
-        function toggleLanguage() {
+        window.toggleLanguage = function() {
             currentLang = currentLang === "en" ? "ar" : "en";
+            localStorage.setItem('dashboard_lang', currentLang); // حفظ الاختيار
+            
             const html = document.getElementById('htmlTag');
             html.setAttribute('lang', currentLang);
             html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
             
+            applyTranslationsUI();
+        }
+
+        function applyTranslationsUI() {
             const t = translations[currentLang];
             document.getElementById('langToggleBtn').innerText = t.toggleBtn;
             document.getElementById('welcomeSub').innerText = t.sub;
@@ -530,7 +542,6 @@
             updateGridLanguage();
             renderNotificationsUI();
         }
-        document.getElementById('langToggleBtn').addEventListener('click', toggleLanguage);
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -550,7 +561,7 @@
                 document.getElementById('modalUID').value = user.uid;
                 document.getElementById('modalUsername').value = "@" + user.email.split('@')[0];
 
-                document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${defaultName} 👋` : `Welcome, ${defaultName} 👋`;
+                applyTranslationsUI(); // تأكيد البناء عند الدخول الفوري
 
                 try {
                     const userRef = ref(db, 'users/' + user.uid);
@@ -559,10 +570,7 @@
                         const dbData = snapshot.val();
                         if (dbData.displayName) {
                             globalCachedUser.displayName = dbData.displayName;
-                            document.getElementById('dropdownDisplayName').innerText = dbData.displayName;
-                            document.getElementById('modalDisplayName').value = dbData.displayName;
-                            document.getElementById('topTriggerName').innerText = dbData.displayName.split(' ')[0];
-                            document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dbData.displayName} 👋` : `Welcome, ${dbData.displayName} 👋`;
+                            applyTranslationsUI();
                         }
                     }
                 } catch (err) { console.log("Database offline."); }
@@ -579,16 +587,6 @@
             onValue(notifRef, (snapshot) => {
                 if (snapshot.exists()) {
                     userNotifications = snapshot.val();
-                    const now = Date.now();
-                    const fortyEightHours = 2 * 24 * 60 * 60 * 1000;
-
-                    Object.keys(userNotifications).forEach(key => {
-                        const msg = userNotifications[key];
-                        if (msg.timestamp && (now - msg.timestamp > fortyEightHours)) {
-                            remove(ref(db, `notifications/${uid}/${key}`));
-                            delete userNotifications[key];
-                        }
-                    });
                 } else {
                     userNotifications = {};
                 }
@@ -624,11 +622,7 @@
                 const div = document.createElement('div');
                 div.className = `notif-item ${item.read === false ? 'unread' : ''}`;
                 div.id = `notif-${key}`;
-                
-                // منع التداخل عند الضغط على الحذف
-                div.addEventListener('click', (e) => {
-                    toggleNotificationExpand(key);
-                });
+                div.onclick = (e) => { e.stopPropagation(); toggleNotificationExpand(key); };
 
                 div.innerHTML = `
                     <div class="notif-item-header">
@@ -637,22 +631,16 @@
                     </div>
                     <div class="notif-body">${item.message || ''}</div>
                     <div class="notif-actions">
-                        <button class="notif-del-btn" data-id="${key}">
+                        <button class="notif-del-btn" onclick="deleteNotification(event, '${key}')">
                             <i class="ri-delete-bin-6-line"></i> ${currentLang === 'ar' ? 'حذف' : 'Delete'}
                         </button>
                     </div>
                 `;
                 container.appendChild(div);
-
-                div.querySelector('.notif-del-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const k = e.currentTarget.getAttribute('data-id');
-                    if (auth.currentUser) remove(ref(db, `notifications/${auth.currentUser.uid}/${k}`));
-                });
             });
         }
 
-        function toggleNotificationExpand(key) {
+        window.toggleNotificationExpand = function(key) {
             const el = document.getElementById(`notif-${key}`);
             if(!el) return;
             el.classList.toggle('expanded');
@@ -661,13 +649,18 @@
             }
         }
 
-        document.getElementById('clearAllNotificationsBtn').addEventListener('click', () => {
+        window.deleteNotification = function(event, key) {
+            event.stopPropagation();
+            if (auth.currentUser) remove(ref(db, `notifications/${auth.currentUser.uid}/${key}`));
+        }
+
+        window.clearAllNotifications = function() {
             if (auth.currentUser && Object.keys(userNotifications).length > 0) {
                 if(confirm(currentLang === 'ar' ? "هل تريد مسح جميع الرسائل الواردة؟" : "Clear all inbox messages?")) {
                     remove(ref(db, `notifications/${auth.currentUser.uid}`));
                 }
             }
-        });
+        }
 
         function renderServersGrid() {
             const container = document.getElementById('serversContainer');
@@ -697,16 +690,11 @@
                         <div class="server-info-item"><span class="lbl-ram"></span> <span>${server.ram}</span></div>
                         <div class="server-info-item"><span class="lbl-proxy"></span> <span class="proxy-text-node" data-en="${server.proxyEn}" data-ar="${server.proxyAr}"></span></div>
                     </div>
-                    <button class="btn-manage" data-srvid="${server.id}">
+                    <button class="btn-manage" onclick="goToServer('${server.id}')">
                         <i class="ri-settings-3-line"></i> <span class="lbl-manage-btn"></span>
                     </button>
                 `;
                 container.appendChild(card);
-                
-                card.querySelector('.btn-manage').addEventListener('click', (e) => {
-                    const sid = e.currentTarget.getAttribute('data-srvid');
-                    alert(currentLang === 'ar' ? "دخول السيرفر: " + sid : "Accessing instance: " + sid);
-                });
             });
             updateGridLanguage();
         }
@@ -727,36 +715,33 @@
             document.querySelectorAll('.lbl-manage-btn').forEach(el => el.innerText = currentLang === 'ar' ? 'دخول وإدارة السيرفر' : 'Manage');
         }
 
-        // 🔒 حل مشكلة زر تأكيد الباسورد الجذري عبر الـ EventListener المباشر المستقر
-        const newPassInput = document.getElementById('newPassword');
-        const confirmPassInput = document.getElementById('confirmPassword');
-        const confirmBtn = document.getElementById('confirmBtn');
-
-        function checkPasswordInputs() {
-            const pass = newPassInput.value;
-            const confirmPass = confirmPassInput.value;
-            
-            if (pass.length >= 6 && pass === confirmPass) {
-                confirmBtn.classList.add('show-btn');
-            } else {
-                confirmBtn.classList.remove('show-btn');
-            }
-        }
-        newPassInput.addEventListener('input', checkPasswordInputs);
-        confirmPassInput.addEventListener('input', checkPasswordInputs);
-
-        document.getElementById('togglePasswordVisibilityBtn').addEventListener('click', () => {
+        window.toggleSinglePasswordSystem = function() {
+            const passInput = document.getElementById('newPassword');
+            const confirmInput = document.getElementById('confirmPassword');
             const eyeIcon = document.getElementById('sharedEyeIcon');
-            if (newPassInput.type === "password") {
-                newPassInput.type = "text"; confirmPassInput.type = "text";
+            if (passInput.type === "password") {
+                passInput.type = "text"; confirmInput.type = "text";
                 eyeIcon.className = "ri-eye-line";
             } else {
-                newPassInput.type = "password"; confirmPassInput.type = "password";
+                passInput.type = "password"; confirmInput.type = "password";
                 eyeIcon.className = "ri-eye-off-line";
             }
-        });
+        }
 
-        // ── Dropdowns Toggle Actions ──
+        // 🔒 حل مشكلة الزرار الحتمية والسريعة
+        window.checkPasswordInputs = function() {
+            const pass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('confirmBtn');
+            
+            // تحقق مباشر وفوري
+            if (pass.length >= 6 && pass === confirmPass) {
+                btn.classList.add('show-btn');
+            } else {
+                btn.classList.remove('show-btn');
+            }
+        }
+
         const profileBtn = document.getElementById('profileBtn');
         const profilePanel = document.getElementById('profilePanel');
         const notifBellBtn = document.getElementById('notifBellBtn');
@@ -785,47 +770,30 @@
             notifBellBtn.classList.remove('active');
         });
 
-        // ── Modal Controls & Navigation ──
-        document.getElementById('menuAccountSettings').addEventListener('click', () => {
-            document.getElementById('settingsModal').classList.add('active');
-        });
-        document.getElementById('closeSettingsModalBtn').addEventListener('click', () => {
+        window.openSettingsModal = function() { document.getElementById('settingsModal').classList.add('active'); }
+        window.closeSettingsModal = function() {
             document.getElementById('settingsModal').classList.remove('active');
-            newPassInput.value = '';
-            confirmPassInput.value = '';
-            confirmBtn.classList.remove('show-btn');
-        });
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('confirmBtn').classList.remove('show-btn');
+        }
 
-        document.getElementById('menuDeveloperArea').addEventListener('click', () => {
-            document.getElementById('devModal').classList.add('active');
-        });
-        document.getElementById('closeDevModalBtn').addEventListener('click', () => {
-            document.getElementById('devModal').classList.remove('active');
-        });
+        window.openDevModal = function() { document.getElementById('devModal').classList.add('active'); }
+        window.closeDevModal = function() { document.getElementById('devModal').classList.remove('active'); }
+        window.handleCreateServer = function() { alert(currentLang === 'ar' ? "جاري تحويلك لبناء خادم سحابي جديد... 🚀" : "Redirecting to deploy a new server node... 🚀"); }
+        window.switchSection = function(sec) { console.log("Section: " + sec); }
+        window.handleLogout = function() { signOut(auth).then(() => window.location.href = 'index.html'); }
+        window.goToServer = function(id) { alert(currentLang === 'ar' ? "دخول السيرفر: " + id : "Accessing instance: " + id); }
 
-        document.getElementById('menuCreateServer').addEventListener('click', () => {
-            alert(currentLang === 'ar' ? "جاري تحويلك لبناء خادم سحابي جديد... 🚀" : "Redirecting to deploy a new server node... 🚀");
-        });
-
-        document.getElementById('menuServersList').addEventListener('click', () => { console.log("Section: servers"); });
-        document.getElementById('menuTools').addEventListener('click', () => { console.log("Section: tools"); });
-        
-        document.getElementById('menuLogout').addEventListener('click', () => {
-            signOut(auth).then(() => window.location.href = 'index.html');
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            const newPass = newPassInput.value;
+        window.updateUserPassword = function() {
+            const newPass = document.getElementById('newPassword').value;
             if (auth.currentUser) {
                 updatePassword(auth.currentUser, newPass).then(() => {
                     alert(currentLang === 'ar' ? "تم تحديث الباسورد بنجاح! 🔒" : "Password updated successfully! 🔒");
-                    document.getElementById('settingsModal').classList.remove('active');
-                    newPassInput.value = '';
-                    confirmPassInput.value = '';
-                    confirmBtn.classList.remove('show-btn');
+                    closeSettingsModal();
                 }).catch(err => alert(err.message));
             }
-        });
+        }
     </script>
 </body>
 </html>
