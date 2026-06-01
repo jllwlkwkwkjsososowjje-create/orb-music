@@ -85,42 +85,17 @@
         .notif-dot.show-dot { display: block; }
         .nav-divider { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
 
-        /* 👤 تعديل زرار البروفايل ليأخذ مساحته ولا يلتصق */
         .profile-trigger {
-            display: flex !important; 
-            align-items: center !important; 
-            gap: 10px !important; 
-            padding: 6px 14px 6px 8px !important; 
-            border-radius: 40px !important; 
-            border: 1px solid var(--border) !important; 
-            transition: all .2s ease !important;
-            min-width: 130px !important; /* عرض أدنى لضمان عدم الضيق */
-            cursor: pointer;
+            display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px;
+            border-radius: 40px; border: 1px solid var(--border); transition: all .2s;
         }
-
-        /* ضبط الـ padding في حالة العربي (RTL) */
-        html[dir="rtl"] .profile-trigger { 
-            padding: 6px 8px 6px 14px !important; 
-        }
-
-        .profile-trigger.active { 
-            border-color: var(--accent); 
-            box-shadow: 0 0 0 3px var(--accent-glow); 
-            background: var(--bg-hover); 
-        }
+        html[dir="rtl"] .profile-trigger { padding: 4px 4px 4px 10px; }
+        .profile-trigger.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: var(--bg-hover); }
 
         .avatar {
-            width: 32px !important; 
-            height: 32px !important; 
-            border-radius: 50% !important;
+            width: 30px; height: 30px; border-radius: 50%;
             background: linear-gradient(135deg, #00f3ff, #6366f1);
-            display: flex !important; 
-            align-items: center !important; 
-            justify-content: center !important; 
-            font-size: 13px !important; 
-            font-weight: 700 !important; 
-            color: #fff !important;
-            flex-shrink: 0; /* منع الصورة من الانكماش */
+            display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff;
         }
         .trigger-name { font-size: 13px; font-weight: 600; color: var(--text); }
         .chevron { font-size: 14px; color: var(--text-muted); transition: transform .3s; display: flex; align-items: center; }
@@ -520,16 +495,9 @@
         let globalCachedUser = { displayName: "Cloud User", username: "user" }; 
         let userNotifications = {};
 
-window.toggleLanguage = function() {
-    // 1. اعكس اللغة
-    currentLang = currentLang === "en" ? "ar" : "en";
-    
-    // 2. احفظ اللغة في المتصفح عشان لما الصفحة تعمل ريفرش تفتح باللغة اللي اخترتها
-    localStorage.setItem('dashboard_lang', currentLang);
-    
-    // 3. الأمر السحري: ريفرش كامل للصفحة (ده هيصلح الأيقونات والخطوط فوراً)
-    window.location.reload();
-}
+        window.toggleLanguage = function() {
+            currentLang = currentLang === "en" ? "ar" : "en";
+            localStorage.setItem('dashboard_lang', currentLang); // حفظ الاختيار
             
             const html = document.getElementById('htmlTag');
             html.setAttribute('lang', currentLang);
