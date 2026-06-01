@@ -121,7 +121,6 @@
         .menu-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r); cursor: pointer; transition: all .2s; }
         .menu-item:hover { background: var(--bg-hover); color: var(--accent); }
         
-        /* 🛑 زرار تسجيل الخروج باللون الأحمر النيون الفخم وجذاب */
         .menu-item.danger { color: var(--text-danger); border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); }
         .menu-item.danger:hover { background: var(--bg-danger); color: #ff6b6b; border-color: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.2); }
         
@@ -168,7 +167,6 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 2, 10, 0.88); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         
-        /* ⚙️ جعل كارت المودال مرن لمنع نزول زرار التأكيد تحت الشاشة ومناسب للموبايل */
         .settings-modal { 
             background: #0b071e; 
             border: 1px solid rgba(0, 243, 255, 0.2); 
@@ -185,6 +183,8 @@
         }
         .modal-overlay.active .settings-modal { transform: scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; flex-shrink: 0; }
+        
+        /* 💡 تم فصل النصوص جوه علامة span مستقلة لحماية الأيقونة من الحذف عند تحويل اللغة */
         .modal-header h3 { font-size: 18px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
         .close-modal-btn { color: #64748b; font-size: 18px; display: flex; align-items: center; }
         .close-modal-btn:hover { color: #ff0055; }
@@ -195,8 +195,8 @@
         .form-group label { display: block; font-size: 11px; color: #64748b; margin-bottom: 5px; font-weight: 600; }
         .form-group input { width: 100%; padding: 11px 12px; background: rgba(5, 3, 10, 0.5); border: 1px solid var(--border); border-radius: 6px; color: #fff; font-size: 13px; }
         .form-group input:focus { border-color: var(--accent); outline: none; }
+        .form-group input:disabled { opacity: 0.8; color: #00f3ff; font-weight: bold; background: rgba(255,255,255,0.02); }
         
-        /* 👁️ تصميم غلاف الباسورد لإضافة العين الواحدة المشتركة بدقة */
         .password-wrapper { position: relative; display: flex; align-items: center; }
         .password-wrapper input { padding-right: 40px; }
         html[dir="rtl"] .password-wrapper input { padding-right: 12px; padding-left: 40px; }
@@ -204,7 +204,7 @@
         html[dir="rtl"] .eye-btn { right: auto; left: 12px; }
         .eye-btn:hover { color: var(--accent); }
 
-        /* زرار الحفظ المؤكد ظهوره بالكامل أسفل الحقول */
+        /* 👁️ زرار التأكيد بيظهر دايماً وبثبات تحت الحقول */
         .btn-confirm { width: 100%; padding: 12px; background: var(--accent); color: #000; border-radius: 6px; font-weight: 700; font-size: 14px; margin-top: 12px; display: none; box-shadow: 0 0 15px var(--accent-glow); transition: 0.2s; flex-shrink: 0; }
         .btn-confirm.show-btn { display: block; }
 
@@ -245,8 +245,8 @@
                     <div class="panel-user">
                         <div class="panel-avatar" id="dropdownAvatar">FH</div>
                         <div>
-                            <div class="panel-user-name" id="dropdownDisplayName">Loading...</div>
-                            <div class="panel-user-email" id="dropdownEmail">loading@hosting.com</div>
+                            <div class="panel-user-name" id="dropdownDisplayName">User Account</div>
+                            <div class="panel-user-email" id="dropdownEmail">auth-user@hosting.com</div>
                         </div>
                     </div>
 
@@ -326,14 +326,14 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="settings-modal">
             <div class="modal-header">
-                <h3><i class="ri-shield-user-line"></i> <span id="txtModalTitle">Profile Settings</span></h3>
+                <h3><i class="ri-shield-user-line" style="color: var(--accent);"></i> <span id="txtModalTitle">Profile Settings</span></h3>
                 <button class="close-modal-btn" onclick="closeSettingsModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="modal-body-form">
                 <div class="form-group"><label id="lblFormDisplay">Display Name</label><input type="text" id="modalDisplayName" disabled></div>
                 <div class="form-group"><label id="lblFormUser">Username</label><input type="text" id="modalUsername" disabled></div>
                 <div class="form-group"><label id="lblFormEmail">Email Address</label><input type="email" id="modalEmail" disabled></div>
-                <div class="form-group"><label id="lblFormUID">Unique Identifier (UID)</label><input type="text" id="modalUID" disabled style="color: var(--accent);"></div>
+                <div class="form-group"><label id="lblFormUID">Unique Identifier (UID)</label><input type="text" id="modalUID" disabled></div>
                 
                 <div class="form-group">
                     <label id="lblFormNewPass">New Password</label>
@@ -358,7 +358,7 @@
     <div class="modal-overlay" id="devModal">
         <div class="settings-modal" style="max-width: 400px;">
             <div class="modal-header">
-                <h3><i class="ri-git-branch-line"></i> <span id="txtDevModalTitle">Host Founders</span></h3>
+                <h3><i class="ri-git-branch-line" style="color: var(--accent);"></i> <span id="txtDevModalTitle">Host Founders</span></h3>
                 <button class="close-modal-btn" onclick="closeDevModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="dev-grid">
@@ -412,9 +412,9 @@
         };
 
         let currentLang = "en";
-        let globalCachedUser = null; // يحفظ بيانات المستخدم الحالية لمنع الرجوع للـ Loading عند الترجمة
+        let globalCachedUser = { displayName: "Cloud User", username: "user" }; 
 
-        // دالة تحويل اللغة الآمنة والمعدلة لمنع حذف البيانات أو الأيقونات
+        // 💡 تحديث دالة الترجمة لتغيير النصوص فقط دون مسح الأيقونات الأساسية
         window.toggleLanguage = function() {
             currentLang = currentLang === "en" ? "ar" : "en";
             const html = document.getElementById('htmlTag');
@@ -437,7 +437,7 @@
             document.getElementById('lblTools').innerText = t.tools;
             document.getElementById('lblLogout').innerText = t.logout;
             
-            // تحديث نصوص المودالات بدون لمس كلاسات الأيقونات الأساسية نهائياً لضمان عدم الاختفاء
+            // تم التعديل هنا: نغير النص فقط دون المساس بالأيقونات
             document.getElementById('txtModalTitle').innerText = t.mTitle;
             document.getElementById('txtDevModalTitle').innerText = t.devTitle;
             
@@ -449,46 +449,62 @@
             document.getElementById('lblFormConfirmPass').innerText = t.fConf;
             document.getElementById('confirmBtn').innerText = t.btnConf;
 
-            if(globalCachedUser) {
-                const dispName = globalCachedUser.displayName || "Cloud User";
-                document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dispName} 👋` : `Welcome, ${dispName} 👋`;
-            }
+            const dispName = globalCachedUser.displayName || "Cloud User";
+            document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dispName} 👋` : `Welcome, ${dispName} 👋`;
+            
             updateGridLanguage();
         }
 
+        // ⚡ تعديل جلب البيانات لتعمل فوراً من الـ Auth لحل مشكلة الـ Loading للأبد
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const uid = user.uid;
+                // 1. املأ البيانات الأساسية فوراً من الـ Auth دون انتظار قاعدة البيانات
+                const defaultName = user.displayName || "Cloud User";
+                globalCachedUser.displayName = defaultName;
+                
+                document.getElementById('topTriggerName').innerText = defaultName.split(' ')[0];
+                document.getElementById('dropdownDisplayName').innerText = defaultName;
+                document.getElementById('dropdownEmail').innerText = user.email;
+                
+                const initials = defaultName.substring(0, 2).toUpperCase();
+                document.getElementById('avatarCircle').innerText = initials;
+                document.getElementById('dropdownAvatar').innerText = initials;
+
+                document.getElementById('modalDisplayName').value = defaultName;
+                document.getElementById('modalEmail').value = user.email;
+                document.getElementById('modalUID').value = user.uid;
+                document.getElementById('modalUsername').value = "@" + user.email.split('@')[0];
+
+                document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${defaultName} 👋` : `Welcome, ${defaultName} 👋`;
+
+                // 2. محاولة جلب الـ Username والـ DisplayName المخصص لو كان مرفوع على الـ Realtime Database
                 try {
-                    const userRef = ref(db, 'users/' + uid);
+                    const userRef = ref(db, 'users/' + user.uid);
                     const snapshot = await get(userRef);
                     if (snapshot.exists()) {
-                        globalCachedUser = snapshot.val();
-                        const dispName = globalCachedUser.displayName || "Cloud User";
-                        const uName = globalCachedUser.username || "user";
-
-                        // حقن البيانات الحقيقية من الفايربيز وتثبيتها بالملي في الواجهة
-                        document.getElementById('topTriggerName').innerText = dispName.split(' ')[0];
-                        document.getElementById('dropdownDisplayName').innerText = dispName;
-                        document.getElementById('dropdownEmail').innerText = user.email;
-                        
-                        const initials = dispName.substring(0, 2).toUpperCase();
-                        document.getElementById('avatarCircle').innerText = initials;
-                        document.getElementById('dropdownAvatar').innerText = initials;
-
-                        document.getElementById('modalDisplayName').value = dispName;
-                        document.getElementById('modalUsername').value = "@" + uName;
-                        document.getElementById('modalEmail').value = user.email;
-                        document.getElementById('modalUID').value = uid;
-
-                        document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dispName} 👋` : `Welcome, ${dispName} 👋`;
+                        const dbData = snapshot.val();
+                        if (dbData.displayName) {
+                            globalCachedUser.displayName = dbData.displayName;
+                            document.getElementById('dropdownDisplayName').innerText = dbData.displayName;
+                            document.getElementById('modalDisplayName').value = dbData.displayName;
+                            document.getElementById('topTriggerName').innerText = dbData.displayName.split(' ')[0];
+                            document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dbData.displayName} 👋` : `Welcome, ${dbData.displayName} 👋`;
+                        }
+                        if (dbData.username) {
+                            globalCachedUser.username = dbData.username;
+                            document.getElementById('modalUsername').value = "@" + dbData.username;
+                        }
                     }
-                } catch (err) { console.error(err); }
+                } catch (err) { 
+                    console.log("قاعدة البيانات غير مستجيبة، تم استخدام بيانات الحساب الافتراضية بنجاح بنظام الحماية المستقل."); 
+                }
+                
                 renderServersGrid();
-            } else { window.location.href = 'index.html'; }
+            } else { 
+                window.location.href = 'index.html'; 
+            }
         });
 
-        // 🤖 الأيقونات العشوائية المحدثة (أيقونة المعالج الذكي البديلة للروبوت القديم)
         const randomIcons = ['ri-cpu-line', 'ri-discord-fill', 'ri-instance-line'];
 
         function renderServersGrid() {
@@ -539,7 +555,7 @@
             document.querySelectorAll('.lbl-manage-btn').forEach(el => el.innerText = currentLang === 'ar' ? 'دخول وإدارة السيرفر' : 'Manage');
         }
 
-        // 👁️ نظام العين الواحدة والمشتركة المطور للتحكم في الحقلين معاً ومنع تكرار الأزرار
+        // 👁️ تشغيل العين الواحدة المشتركة بدقة للحقلين
         window.toggleSinglePasswordSystem = function() {
             const passInput = document.getElementById('newPassword');
             const confirmInput = document.getElementById('confirmPassword');
@@ -556,7 +572,7 @@
             }
         }
 
-        // التحقق الدقيق والآمن لظهور زرار التأكيد تحت الحقول مباشرة بدون خروج عن الكارد
+        // إظهار وإخفاء زرار الحفظ تحت الحقول فوراً عند تطابق الرقم السري
         window.checkPasswordInputs = function() {
             const pass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
