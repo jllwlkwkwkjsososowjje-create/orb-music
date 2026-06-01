@@ -18,7 +18,7 @@
             --bg-nav: rgba(10, 6, 22, 0.92);
             --bg-card: rgba(20, 15, 38, 0.6);
             --bg-hover: #13122b;
-            --bg-danger: rgba(239, 68, 68, 0.08);
+            --bg-danger: rgba(239, 68, 68, 0.15);
             --accent: #00f3ff;
             --accent-soft: rgba(0, 243, 255, 0.1);
             --accent-glow: rgba(0, 243, 255, 0.25);
@@ -98,7 +98,6 @@
         .profile-trigger.active .chevron { transform: rotate(180deg); color: var(--accent); }
 
         /* ── Dropdown Panel ────────────────────────── */
-        .panel-wrap { position: relative; }
         .panel {
             position: absolute; top: calc(100% + 12px); right: 0; width: 280px;
             background: #0b071e; border: 1px solid var(--border); border-radius: var(--r-lg);
@@ -109,11 +108,6 @@
         }
         html[dir="rtl"] .panel { right: auto; left: 0; transform-origin: top left; }
         .panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-
-        @media (max-width: 480px) {
-            .panel { right: -10px; width: calc(100vw - 32px); max-width: 320px; }
-            html[dir="rtl"] .panel { left: -10px; right: auto; }
-        }
 
         .panel-user { padding: 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
         .panel-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #00f3ff, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; }
@@ -126,7 +120,10 @@
 
         .menu-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r); cursor: pointer; transition: all .2s; }
         .menu-item:hover { background: var(--bg-hover); color: var(--accent); }
-        .menu-item.danger:hover { background: var(--bg-danger); color: var(--text-danger); }
+        
+        /* 🛑 زرار تسجيل الخروج باللون الأحمر الفخم */
+        .menu-item.danger { color: var(--text-danger); border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); }
+        .menu-item.danger:hover { background: var(--bg-danger); color: #ff6b6b; border-color: #ef4444; }
         
         .item-icon { width: 26px; height: 26px; border-radius: 6px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 15px; }
         .menu-item:hover .item-icon { color: inherit; }
@@ -134,43 +131,26 @@
         .item-label { display: block; font-size: 12px; font-weight: 600; }
         .item-sub { display: block; font-size: 10px; color: var(--text-muted); }
 
-        /* ── 🌟 Social Media Buttons ── */
+        /* ── Social Media ── */
         .social-container { margin: 20px 0 30px 0; width: 100%; display: flex; justify-content: flex-start; }
         .social-wrapper { display: flex; gap: 12px; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); width: 100%; overflow-x: auto; }
-        
-        .social-btn {
-            position: relative; display: flex; align-items: center; justify-content: flex-start;
-            height: 48px; width: 48px; padding: 14px; border-radius: 50px; text-decoration: none;
-            color: #9d8dbb; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-            overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); flex-shrink: 0;
-        }
+        .social-btn { position: relative; display: flex; align-items: center; justify-content: flex-start; height: 48px; width: 48px; padding: 14px; border-radius: 50px; color: #9d8dbb; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); flex-shrink: 0; }
         .social-btn i { font-size: 20px; text-align: center; z-index: 2; transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; width: 20px; }
         .social-btn .btn-text { font-size: 13px; font-weight: 700; white-space: nowrap; margin-left: 10px; opacity: 0; z-index: 2; transform: translateX(-10px); transition: all 0.3s ease; }
         html[dir="rtl"] .social-btn .btn-text { margin-left: 0; margin-right: 10px; transform: translateX(10px); }
-
         .social-btn:hover { width: 145px; color: #ffffff; transform: translateY(-3px); }
         .social-btn:hover .btn-text { opacity: 1; transform: translateX(0); }
-        .social-btn:hover i { transform: rotate(360deg); }
-
-        .discord:hover { background: #5865F2; border-color: #5865F2; box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4); }
-        .github:hover { background: #24292e; border-color: #333; box-shadow: 0 8px 20px rgba(255,255,255,0.1); }
-        .youtube:hover { background: #ff0000; border-color: #ff0000; box-shadow: 0 8px 20px rgba(255, 0, 0, 0.4); }
-        .tiktok:hover { background: linear-gradient(45deg, #00f2fe, #fe0979); border-color: #00f2fe; box-shadow: 0 8px 20px rgba(254, 9, 121, 0.4); }
-
-        @media (max-width: 550px) {
-            .social-wrapper { gap: 10px; padding: 10px; }
-            .social-btn { height: 42px; width: 42px; padding: 12px; }
-            .social-btn i { font-size: 17px; }
-            .social-btn:hover { width: 120px; }
-        }
+        .discord:hover { background: #5865F2; border-color: #5865F2; }
+        .github:hover { background: #24292e; border-color: #333; }
+        .youtube:hover { background: #ff0000; border-color: #ff0000; }
+        .tiktok:hover { background: linear-gradient(45deg, #00f2fe, #fe0979); border-color: #00f2fe; }
 
         /* ── Servers Grid ── */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
-        .welcome-section { margin-bottom: 20px; margin-top: 10px; }
+        .welcome-section { margin-bottom: 20px; }
         .welcome-msg { font-size: 26px; font-weight: 800; margin-bottom: 6px; border-left: 4px solid var(--accent); padding-left: 12px; }
         html[dir="rtl"] .welcome-msg { border-left: none; border-right: 4px solid var(--accent); padding-right: 12px; }
         .welcome-sub { color: var(--text-muted); font-size: 13px; }
-
         .servers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; }
         .server-card { background: var(--bg-card); border: 1px solid rgba(0, 243, 255, 0.12); border-radius: 14px; padding: 20px; transition: all 0.3s; }
         .server-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
@@ -184,7 +164,7 @@
         .server-info-item span:last-child { color: #fff; font-weight: 600; }
         .btn-manage { width: 100%; padding: 10px; border-radius: 8px; background: var(--accent); color: #000; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-        /* ── Modals ──────────────────────────────────── */
+        /* ── Modals & Eye Password Styling ── */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 2, 10, 0.88); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .settings-modal { background: #0b071e; border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; transform: scale(0.95); transition: 0.3s; }
@@ -194,11 +174,20 @@
         .close-modal-btn { color: #64748b; font-size: 18px; display: flex; align-items: center; }
         .close-modal-btn:hover { color: #ff0055; }
 
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 11px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
-        .form-group input { width: 100%; padding: 10px 12px; background: rgba(5, 3, 10, 0.5); border: 1px solid var(--border); border-radius: 6px; color: #fff; font-size: 13px; }
+        .form-group { margin-bottom: 14px; position: relative; }
+        .form-group label { display: block; font-size: 11px; color: #64748b; margin-bottom: 5px; font-weight: 600; }
+        .form-group input { width: 100%; padding: 11px 12px; background: rgba(5, 3, 10, 0.5); border: 1px solid var(--border); border-radius: 6px; color: #fff; font-size: 13px; }
         .form-group input:focus { border-color: var(--accent); outline: none; }
-        .btn-confirm { width: 100%; padding: 10px; background: var(--accent); color: #000; border-radius: 6px; font-weight: 700; font-size: 14px; margin-top: 8px; display: none; }
+        
+        /* 👁️ نظام كاشف الباسورد المطور */
+        .password-wrapper { position: relative; display: flex; align-items: center; }
+        .password-wrapper input { padding-right: 40px; }
+        html[dir="rtl"] .password-wrapper input { padding-right: 12px; padding-left: 40px; }
+        .eye-btn { position: absolute; right: 12px; color: var(--text-muted); font-size: 16px; display: flex; align-items: center; justify-content: center; height: 100%; top: 0; }
+        html[dir="rtl"] .eye-btn { right: auto; left: 12px; }
+        .eye-btn:hover { color: var(--accent); }
+
+        .btn-confirm { width: 100%; padding: 11px; background: var(--accent); color: #000; border-radius: 6px; font-weight: 700; font-size: 14px; margin-top: 12px; display: none; box-shadow: 0 0 15px var(--accent-glow); transition: 0.2s; }
         .btn-confirm.show-btn { display: block; }
 
         .dev-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
@@ -219,7 +208,7 @@
 
         <div class="nav-right">
             <button class="lang-btn" id="langToggleBtn" onclick="toggleLanguage()">العربية</button>
-            <div class="panel-wrap" id="notifWrap">
+            <div class="panel-wrap">
                 <button class="icon-btn" aria-label="Notifications">
                     <div class="notif-dot"></div>
                     <i class="ri-notification-3-line"></i>
@@ -306,41 +295,43 @@
 
         <div class="social-container">
             <div class="social-wrapper">
-                <a href="https://discord.gg/ymNp8uGXm5" target="_blank" class="social-btn discord">
-                    <i class="ri-discord-fill"></i>
-                    <span class="btn-text">Discord</span>
-                </a>
-                <a href="#" target="_blank" class="social-btn github">
-                    <i class="ri-github-fill"></i>
-                    <span class="btn-text">GitHub</span>
-                </a>
-                <a href="#" target="_blank" class="social-btn youtube">
-                    <i class="ri-youtube-fill"></i>
-                    <span class="btn-text">YouTube</span>
-                </a>
-                <a href="#" target="_blank" class="social-btn tiktok">
-                    <i class="ri-tiktok-fill"></i>
-                    <span class="btn-text">TikTok</span>
-                </a>
+                <a href="https://discord.gg/ymNp8uGXm5" target="_blank" class="social-btn discord"><i class="ri-discord-fill"></i><span class="btn-text">Discord</span></a>
+                <a href="#" target="_blank" class="social-btn github"><i class="ri-github-fill"></i><span class="btn-text">GitHub</span></a>
+                <a href="#" target="_blank" class="social-btn youtube"><i class="ri-youtube-fill"></i><span class="btn-text">YouTube</span></a>
+                <a href="#" target="_blank" class="social-btn tiktok"><i class="ri-tiktok-fill"></i><span class="btn-text">TikTok</span></a>
             </div>
         </div>
         
-        <div class="servers-grid" id="serversContainer">
-            </div>
+        <div class="servers-grid" id="serversContainer"></div>
     </main>
 
     <div class="modal-overlay" id="settingsModal">
         <div class="settings-modal">
             <div class="modal-header">
-                <h3 id="modalTitle"><i class="ri-shield-user-line"></i> Profile Settings</h3>
+                <h3><i class="ri-shield-user-line"></i> <span id="txtModalTitle">Profile Settings</span></h3>
                 <button class="close-modal-btn" onclick="closeSettingsModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="form-group"><label id="lblFormDisplay">Display Name</label><input type="text" id="modalDisplayName" disabled></div>
             <div class="form-group"><label id="lblFormUser">Username</label><input type="text" id="modalUsername" disabled></div>
             <div class="form-group"><label id="lblFormEmail">Email Address</label><input type="email" id="modalEmail" disabled></div>
             <div class="form-group"><label id="lblFormUID">Unique Identifier (UID)</label><input type="text" id="modalUID" disabled style="color: var(--accent);"></div>
-            <div class="form-group"><label id="lblFormNewPass">New Password</label><input type="password" id="newPassword" placeholder="••••••••" oninput="checkPasswordInputs()"></div>
-            <div class="form-group"><label id="lblFormConfirmPass">Confirm Password</label><input type="password" id="confirmPassword" placeholder="••••••••" oninput="checkPasswordInputs()"></div>
+            
+            <div class="form-group">
+                <label id="lblFormNewPass">New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="newPassword" placeholder="••••••••" oninput="checkPasswordInputs()">
+                    <button class="eye-btn" onclick="togglePassVisibility('newPassword', 'eyeIcon1')"><i class="ri-eye-off-line" id="eyeIcon1"></i></button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label id="lblFormConfirmPass">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" placeholder="••••••••" oninput="checkPasswordInputs()">
+                    <button class="eye-btn" onclick="togglePassVisibility('confirmPassword', 'eyeIcon2')"><i class="ri-eye-off-line" id="eyeIcon2"></i></button>
+                </div>
+            </div>
+            
             <button class="btn-confirm" id="confirmBtn" onclick="updateUserPassword()">Confirm Changes</button>
         </div>
     </div>
@@ -348,23 +339,17 @@
     <div class="modal-overlay" id="devModal">
         <div class="settings-modal" style="max-width: 400px;">
             <div class="modal-header">
-                <h3 id="devModalTitle"><i class="ri-git-branch-line"></i> Host Founders</h3>
+                <h3><i class="ri-git-branch-line"></i> <span id="txtDevModalTitle">Host Founders</span></h3>
                 <button class="close-modal-btn" onclick="closeDevModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="dev-grid">
                 <div class="dev-card">
                     <div class="dev-avatar"><i class="ri-vip-crown-line"></i></div>
-                    <div class="dev-info">
-                        <h4>Malek</h4>
-                        <p>Founder & Core Developer</p>
-                    </div>
+                    <div class="dev-info"><h4>Malek</h4><p>Founder & Core Developer</p></div>
                 </div>
                 <div class="dev-card">
                     <div class="dev-avatar"><i class="ri-shield-flash-line"></i></div>
-                    <div class="dev-info">
-                        <h4>Waseem</h4>
-                        <p>Founder & Infrastructure Architect</p>
-                    </div>
+                    <div class="dev-info"><h4>Waseem</h4><p>Founder & Infrastructure Architect</p></div>
                 </div>
             </div>
         </div>
@@ -390,25 +375,25 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // تم تعديل الأيقونات هنا لتقرأ ريمكس مية في المية ولا تختفي أبداً عند التحويل
         const translations = {
             en: {
-                toggleBtn: "العربية", welcome: "Welcome to the future cloud 👋", sub: "Here is a complete view of your active automated instances.",
+                toggleBtn: "العربية", sub: "Here is a complete view of your active automated instances.",
                 dashOpts: "Dashboard Options", sList: "Servers List", sSub: "Manage active instances", accSet: "Account Settings", accSub: "Update profile & security",
                 devHub: "Developer Hub", devArea: "Developer Area", tools: "Tools", logout: "Log Out",
                 mTitle: "Profile Settings", fDisp: "Display Name", fUser: "Username", fEmail: "Email Address", fUid: "Unique Identifier (UID)", fNew: "New Password", fConf: "Confirm Password", btnConf: "Confirm Changes",
                 createSrv: "Create Server", createSrvSub: "Deploy a brand new node", devTitle: "Host Founders"
             },
             ar: {
-                toggleBtn: "English", welcome: "مرحباً بك في سحابة المستقبل 👋", sub: "إليك نظرة كاملة شاملة على خوادمك المؤتمتة النشطة ومواردك.",
+                toggleBtn: "English", sub: "إليك نظرة كاملة شاملة على خوادمك المؤتمتة النشطة ومواردك السحابية.",
                 dashOpts: "خيارات لوحة التحكم", sList: "قائمة السيرفرات", sSub: "إدارة السيرفرات الفعالة", accSet: "إعدادات الحساب", accSub: "تحديث الأمان والبروفايل",
                 devHub: "مركز التطوير", devArea: "منطقة المطور", tools: "الأدوات", logout: "تسجيل الخروج",
-                mTitle: "إعدادات الحساب الشخصي", fDisp: "اسم العرض الحقيقي", fUser: "اسم المستخدم الفريد", fEmail: "البريد الإلكتروني الحالي", fUid: "المعرف الفريد الثابت (UID)", fNew: "كلمة المرور الجديدة", fConf: "تأكيد كلمة المرور الجديدة", btnConf: "حفظ وتأكيد التغييرات",
-                createSrv: "أنشأ سيرفر", createSrvSub: "بناء وإطلاق خادم سحابي جديد", devTitle: "مؤسسي ومطوري الهوست"
+                mTitle: "إعدادات الحساب الشخصي", fDisp: "اسم العرض الحقيقي", fUser: "اسم المستخدم الفريد", fEmail: "البريد الإلكتروني الحالي", fUid: "المعرف الخاص الفريد (UID)", fNew: "كلمة المرور الجديدة", fConf: "تأكيد كلمة المرور", btnConf: "حفظ وتأكيد التغييرات",
+                createSrv: "أنشئ سيرفر", createSrvSub: "بناء وإطلاق خادم سحابي جديد", devTitle: "مؤسسي ومطوري الهوست"
             }
         };
 
         let currentLang = "en";
+        let globalCachedUser = null; // الاحتفاظ ببيانات الفايربيز لمنع مسحها عند التنقل بين اللغات
 
         window.toggleLanguage = function() {
             currentLang = currentLang === "en" ? "ar" : "en";
@@ -432,9 +417,9 @@
             document.getElementById('lblTools').innerText = t.tools;
             document.getElementById('lblLogout').innerText = t.logout;
             
-            // تصحيح الأيقونات داخل الـ المودال لمنع الاختفاء
-            document.getElementById('modalTitle').innerHTML = `<i class="ri-shield-user-line"></i> ${t.mTitle}`;
-            document.getElementById('devModalTitle').innerHTML = `<i class="ri-git-branch-line"></i> ${t.devTitle}`;
+            // تحديث نصوص المودال بدون لمس الأيقونات لتجنب الاختفاء
+            document.getElementById('txtModalTitle').innerText = t.mTitle;
+            document.getElementById('txtDevModalTitle').innerText = t.devTitle;
             
             document.getElementById('lblFormDisplay').innerText = t.fDisp;
             document.getElementById('lblFormUser').innerText = t.fUser;
@@ -444,9 +429,9 @@
             document.getElementById('lblFormConfirmPass').innerText = t.fConf;
             document.getElementById('confirmBtn').innerText = t.btnConf;
 
-            const dName = document.getElementById('dropdownDisplayName').innerText;
-            if(dName !== "Loading...") {
-                document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dName} 👋` : `Welcome, ${dName} 👋`;
+            if(globalCachedUser) {
+                const dispName = globalCachedUser.displayName || "Cloud User";
+                document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dispName} 👋` : `Welcome, ${dispName} 👋`;
             }
             updateGridLanguage();
         }
@@ -458,10 +443,11 @@
                     const userRef = ref(db, 'users/' + uid);
                     const snapshot = await get(userRef);
                     if (snapshot.exists()) {
-                        const userData = snapshot.val();
-                        const dispName = userData.displayName || "Cloud User";
-                        const uName = userData.username || "user";
+                        globalCachedUser = snapshot.val();
+                        const dispName = globalCachedUser.displayName || "Cloud User";
+                        const uName = globalCachedUser.username || "user";
 
+                        // تعبئة البيانات في الهيدر والإنبوتس بالملي ومنع اختفائها
                         document.getElementById('topTriggerName').innerText = dispName.split(' ')[0];
                         document.getElementById('dropdownDisplayName').innerText = dispName;
                         document.getElementById('dropdownEmail').innerText = user.email;
@@ -475,15 +461,15 @@
                         document.getElementById('modalEmail').value = user.email;
                         document.getElementById('modalUID').value = uid;
 
-                        document.getElementById('welcomeHeading').innerText = `Welcome, ${dispName} 👋`;
+                        document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dispName} 👋` : `Welcome, ${dispName} 👋`;
                     }
                 } catch (err) { console.error(err); }
                 renderServersGrid();
             } else { window.location.href = 'index.html'; }
         });
 
-        // مصفوفة الأيقونات العشوائية المطلوبة (روبوت، ديسكورد، سيرفر سحابي)
-        const randomIcons = ['ri-robot-line', 'ri-discord-fill', 'ri-instance-line'];
+        // 🤖 أيقونة الروبوت والديسكورد المحدثة الفخمة
+        const randomIcons = ['ri-cpu-line', 'ri-discord-fill', 'ri-instance-line'];
 
         function renderServersGrid() {
             const container = document.getElementById('serversContainer');
@@ -495,7 +481,6 @@
 
             container.innerHTML = '';
             sampleServers.forEach(server => {
-                // سحب أيقونة عشوائية فريدة لكل كارت سيرفر يتم بناؤه
                 const chosenIcon = randomIcons[Math.floor(Math.random() * randomIcons.length)];
                 
                 const card = document.createElement('div');
@@ -504,16 +489,16 @@
                     <div class="server-header">
                         <div class="server-name">
                             <i class="${chosenIcon}" style="color: var(--accent); font-size: 18px;"></i> 
-                            <span class="srv-title" data-en="${server.nameEn}" data-ar="${server.nameAr}">${server.nameEn}</span>
+                            <span class="srv-title" data-en="${server.nameEn}" data-ar="${server.nameAr}">${currentLang === 'ar' ? server.nameAr : server.nameEn}</span>
                         </div>
                         <span class="status-badge ${server.status === 'online' ? 'status-online' : 'status-offline'}">
-                            <i class="ri-checkbox-blank-circle-fill" style="font-size: 8px;"></i> <span data-en="${server.textEn}" data-ar="${server.textAr}">${server.textEn}</span>
+                            <i class="ri-checkbox-blank-circle-fill" style="font-size: 8px;"></i> <span data-en="${server.textEn}" data-ar="${server.textAr}">${currentLang === 'ar' ? server.textAr : server.textEn}</span>
                         </span>
                     </div>
                     <div class="server-body">
                         <div class="server-info-item"><span class="lbl-type">Type:</span> <span>${server.type}</span></div>
                         <div class="server-info-item"><span class="lbl-ram">RAM Usage:</span> <span>${server.ram}</span></div>
-                        <div class="server-info-item"><span class="lbl-proxy">Proxy:</span> <span data-en="${server.proxy}" data-ar="${server.proxyAr}">${server.proxy}</span></div>
+                        <div class="server-info-item"><span class="lbl-proxy">Proxy:</span> <span data-en="${server.proxy}" data-ar="${server.proxyAr}">${currentLang === 'ar' ? server.proxyAr : server.proxy}</span></div>
                     </div>
                     <button class="btn-manage" onclick="goToServer('${server.id}')">
                         <i class="ri-settings-3-line"></i> <span class="lbl-manage-btn">Manage</span>
@@ -532,6 +517,31 @@
             document.querySelectorAll('.lbl-ram').forEach(el => el.innerText = currentLang === 'ar' ? 'استهلاك الذاكرة:' : 'RAM Usage:');
             document.querySelectorAll('.lbl-proxy').forEach(el => el.innerText = currentLang === 'ar' ? 'البروكسي المتصل:' : 'Proxy:');
             document.querySelectorAll('.lbl-manage-btn').forEach(el => el.innerText = currentLang === 'ar' ? 'دخول وإدارة السيرفر' : 'Manage');
+        }
+
+        // 👁️ دالة إظهار وإخفاء الباسورد (العين)
+        window.togglePassVisibility = function(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.className = "ri-eye-line";
+            } else {
+                input.type = "password";
+                icon.className = "ri-eye-off-line";
+            }
+        }
+
+        // التحقق من تطابق وظهور زرار التأكيد بالأسفل
+        window.checkPasswordInputs = function() {
+            const pass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('confirmBtn');
+            if (pass.length >= 6 && pass === confirmPass) {
+                btn.classList.add('show-btn');
+            } else {
+                btn.classList.remove('show-btn');
+            }
         }
 
         const profileBtn = document.getElementById('profileBtn');
@@ -558,18 +568,10 @@
 
         window.openDevModal = function() { document.getElementById('devModal').classList.add('active'); }
         window.closeDevModal = function() { document.getElementById('devModal').classList.remove('active'); }
-
-        window.handleCreateServer = function() {
-            alert(currentLang === 'ar' ? "جاري تحويلك لبناء خادم سحابي جديد... 🚀" : "Redirecting to deploy a new server node... 🚀");
-        }
-
-        window.checkPasswordInputs = function() {
-            const pass = document.getElementById('newPassword').value;
-            const confirmPass = document.getElementById('confirmPassword').value;
-            const btn = document.getElementById('confirmBtn');
-            if (pass.length >= 6 && pass === confirmPass) btn.classList.add('show-btn');
-            else btn.classList.remove('show-btn');
-        }
+        window.handleCreateServer = function() { alert(currentLang === 'ar' ? "جاري تحويلك لبناء خادم سحابي جديد... 🚀" : "Redirecting to deploy a new server node... 🚀"); }
+        window.switchSection = function(sec) { console.log("Section: " + sec); }
+        window.handleLogout = function() { signOut(auth).then(() => window.location.href = 'index.html'); }
+        window.goToServer = function(id) { alert(currentLang === 'ar' ? "دخول السيرفر: " + id : "Accessing instance: " + id); }
 
         window.updateUserPassword = function() {
             const newPass = document.getElementById('newPassword').value;
@@ -580,10 +582,6 @@
                 }).catch(err => alert(err.message));
             }
         }
-
-        window.switchSection = function(sec) { console.log("Section: " + sec); }
-        window.handleLogout = function() { signOut(auth).then(() => window.location.href = 'index.html'); }
-        window.goToServer = function(id) { alert(currentLang === 'ar' ? "دخول السيرفر: " + id : "Accessing instance: " + id); }
     </script>
 </body>
 </html>
