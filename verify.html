@@ -197,15 +197,16 @@
         // [تعديل 2]: استدعاء دالة set لحفظ الداتا سحابياً 🔒
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
-          authDomain: "host-the-future-b9ef5.firebaseapp.com",
-          projectId: "host-the-future-b9ef5",
-          storageBucket: "host-the-future-b9ef5.firebasestorage.app",
-          messagingSenderId: "613938151767",
-          appId: "1:613938151767:web:f3bb0d95f14cc8d1cb7e12",
-          measurementId: "G-2B5YWFC4VV"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
+  authDomain: "host-the-future-b9ef5.firebaseapp.com",
+  projectId: "host-the-future-b9ef5",
+  storageBucket: "host-the-future-b9ef5.firebasestorage.app",
+  messagingSenderId: "613938151767",
+  appId: "1:613938151767:web:f3bb0d95f14cc8d1cb7e12",
+  measurementId: "G-2B5YWFC4VV",
+  databaseURL: "https://host-the-future-b9ef5-default-rtdb.firebaseio.com/" // 👈 الرابط الفخم بتاعك هنا
+};
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
