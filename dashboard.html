@@ -97,7 +97,7 @@
         .chevron { font-size: 14px; color: var(--text-muted); transition: transform .3s; display: flex; align-items: center; }
         .profile-trigger.active .chevron { transform: rotate(180deg); color: var(--accent); }
 
-        /* ── الـ Dropdown ────────────────────────── */
+        /* ── Dropdown Panel ────────────────────────── */
         .panel-wrap { position: relative; }
         .panel {
             position: absolute; top: calc(100% + 12px); right: 0; width: 280px;
@@ -134,7 +134,7 @@
         .item-label { display: block; font-size: 12px; font-weight: 600; }
         .item-sub { display: block; font-size: 10px; color: var(--text-muted); }
 
-        /* ── 🌟 أزرار السوشيال ميديا المضيئة والمتمددة (FEZ Style - Remix Icons) ── */
+        /* ── 🌟 Social Media Buttons ── */
         .social-container { margin: 20px 0 30px 0; width: 100%; display: flex; justify-content: flex-start; }
         .social-wrapper { display: flex; gap: 12px; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); width: 100%; overflow-x: auto; }
         
@@ -164,7 +164,7 @@
             .social-btn:hover { width: 120px; }
         }
 
-        /* حاوية عناصر السيرفرات */
+        /* ── Servers Grid ── */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
         .welcome-section { margin-bottom: 20px; margin-top: 10px; }
         .welcome-msg { font-size: 26px; font-weight: 800; margin-bottom: 6px; border-left: 4px solid var(--accent); padding-left: 12px; }
@@ -184,7 +184,7 @@
         .server-info-item span:last-child { color: #fff; font-weight: 600; }
         .btn-manage { width: 100%; padding: 10px; border-radius: 8px; background: var(--accent); color: #000; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-        /* ── النوافذ المنبثقة ──────────────────────────────────── */
+        /* ── Modals ──────────────────────────────────── */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 2, 10, 0.88); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .settings-modal { background: #0b071e; border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 16px; padding: 24px; width: 100%; max-width: 440px; transform: scale(0.95); transition: 0.3s; }
@@ -201,7 +201,6 @@
         .btn-confirm { width: 100%; padding: 10px; background: var(--accent); color: #000; border-radius: 6px; font-weight: 700; font-size: 14px; margin-top: 8px; display: none; }
         .btn-confirm.show-btn { display: block; }
 
-        /* كروت المطورين */
         .dev-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
         .dev-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 12px; border-radius: 10px; }
         .dev-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--accent); }
@@ -391,6 +390,7 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // تم تعديل الأيقونات هنا لتقرأ ريمكس مية في المية ولا تختفي أبداً عند التحويل
         const translations = {
             en: {
                 toggleBtn: "العربية", welcome: "Welcome to the future cloud 👋", sub: "Here is a complete view of your active automated instances.",
@@ -431,8 +431,11 @@
             document.getElementById('lblDeveloper').innerText = t.devArea;
             document.getElementById('lblTools').innerText = t.tools;
             document.getElementById('lblLogout').innerText = t.logout;
+            
+            // تصحيح الأيقونات داخل الـ المودال لمنع الاختفاء
             document.getElementById('modalTitle').innerHTML = `<i class="ri-shield-user-line"></i> ${t.mTitle}`;
             document.getElementById('devModalTitle').innerHTML = `<i class="ri-git-branch-line"></i> ${t.devTitle}`;
+            
             document.getElementById('lblFormDisplay').innerText = t.fDisp;
             document.getElementById('lblFormUser').innerText = t.fUser;
             document.getElementById('lblFormEmail').innerText = t.fEmail;
@@ -479,6 +482,9 @@
             } else { window.location.href = 'index.html'; }
         });
 
+        // مصفوفة الأيقونات العشوائية المطلوبة (روبوت، ديسكورد، سيرفر سحابي)
+        const randomIcons = ['ri-robot-line', 'ri-discord-fill', 'ri-instance-line'];
+
         function renderServersGrid() {
             const container = document.getElementById('serversContainer');
             const sampleServers = [
@@ -489,11 +495,17 @@
 
             container.innerHTML = '';
             sampleServers.forEach(server => {
+                // سحب أيقونة عشوائية فريدة لكل كارت سيرفر يتم بناؤه
+                const chosenIcon = randomIcons[Math.floor(Math.random() * randomIcons.length)];
+                
                 const card = document.createElement('div');
                 card.className = 'server-card';
                 card.innerHTML = `
                     <div class="server-header">
-                        <div class="server-name"><i class="ri-robot-line" style="color: var(--accent);"></i> <span class="srv-title" data-en="${server.nameEn}" data-ar="${server.nameAr}">${server.nameEn}</span></div>
+                        <div class="server-name">
+                            <i class="${chosenIcon}" style="color: var(--accent); font-size: 18px;"></i> 
+                            <span class="srv-title" data-en="${server.nameEn}" data-ar="${server.nameAr}">${server.nameEn}</span>
+                        </div>
                         <span class="status-badge ${server.status === 'online' ? 'status-online' : 'status-offline'}">
                             <i class="ri-checkbox-blank-circle-fill" style="font-size: 8px;"></i> <span data-en="${server.textEn}" data-ar="${server.textAr}">${server.textEn}</span>
                         </span>
