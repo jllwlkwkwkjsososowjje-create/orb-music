@@ -85,21 +85,28 @@
         .notif-dot.show-dot { display: block; }
         .nav-divider { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
 
+        /* تعديل زر البروفايل لمنع اللزق والأيقونات */
         .profile-trigger {
-            display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px;
-            border-radius: 40px; border: 1px solid var(--border); transition: all .2s;
+            display: flex !important; align-items: center !important; gap: 10px !important; 
+            padding: 6px 16px 6px 8px !important; border-radius: 40px !important; 
+            border: 1px solid var(--border) !important; transition: all .2s !important;
+            min-width: 140px !important; cursor: pointer;
         }
-        html[dir="rtl"] .profile-trigger { padding: 4px 4px 4px 10px; }
+        html[dir="rtl"] .profile-trigger { padding: 6px 8px 6px 16px !important; }
         .profile-trigger.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: var(--bg-hover); }
 
         .avatar {
-            width: 30px; height: 30px; border-radius: 50%;
+            width: 32px !important; height: 32px !important; border-radius: 50% !important;
             background: linear-gradient(135deg, #00f3ff, #6366f1);
-            display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff;
+            display: flex !important; align-items: center !important; justify-content: center !important; 
+            font-size: 12px !important; font-weight: 700 !important; color: #fff !important; flex-shrink: 0 !important;
         }
-        .trigger-name { font-size: 13px; font-weight: 600; color: var(--text); }
-        .chevron { font-size: 14px; color: var(--text-muted); transition: transform .3s; display: flex; align-items: center; }
+        .trigger-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; }
+        .chevron { font-size: 14px; color: var(--text-muted); transition: transform .3s; display: flex !important; align-items: center !important; }
         .profile-trigger.active .chevron { transform: rotate(180deg); color: var(--accent); }
+        
+        /* منع ترجمة المتصفح من التأثير على الأيقونات */
+        [class^="ri-"], [class*=" ri-"] { font-family: 'remixicon' !important; display: inline-block !important; }
 
         /* ── Dropdown Panels ────────────────────────── */
         .panel {
@@ -496,14 +503,14 @@
         let userNotifications = {};
 
         window.toggleLanguage = function() {
-            currentLang = currentLang === "en" ? "ar" : "en";
-            localStorage.setItem('dashboard_lang', currentLang); // حفظ الاختيار
+            // 1. عكس اللغة
+            const newLang = currentLang === "en" ? "ar" : "en";
             
-            const html = document.getElementById('htmlTag');
-            html.setAttribute('lang', currentLang);
-            html.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+            // 2. حفظ اللغة
+            localStorage.setItem('dashboard_lang', newLang); 
             
-            applyTranslationsUI();
+            // 3. ريفرش إجباري للصفحة (ده الحل الوحيد لضمان عمل الأيقونات والـ RTL)
+            window.location.reload();
         }
 
         function applyTranslationsUI() {
