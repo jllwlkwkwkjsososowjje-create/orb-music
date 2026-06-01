@@ -262,39 +262,7 @@
                     const decodedUser = decodeURIComponent(user || 'user123').trim().toLowerCase(); // تنظيف الـ Username
 
                     try {
-                        // 🛠️ [الخطوة 2]: فحص الإيميل أولاً سحابياً للتأكد أنه غير مستخدم ومسجل مسبقاً لمنع التكرار والتعليق
-                        // نقوم بعمل استعلام في قاعدة البيانات للبحث عن الإيميل داخل نود takenUsernames
-                        const dbRef = ref(db, 'takenUsernames');
-                        const snapshot = await get(dbRef);
-                        let emailExists = false;
-                        
-                        if (snapshot.exists()) {
-                            const data = snapshot.val();
-                            for (let u in data) {
-                                if (data[u].ownerEmail === email) {
-                                    emailExists = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (emailExists) {
-                            cardIconBox.style.borderColor = "#f59e0b";
-                            cardIconBox.style.background = "rgba(245, 158, 11, 0.05)";
-                            cardIconBox.style.boxShadow = "0 0 20px rgba(245, 158, 11, 0.2)";
-                            cardIcon.className = "fa-solid fa-triangle-exclamation";
-                            cardIcon.style.color = "#f59e0b";
-
-                            cardHeading.innerText = "Already Activated";
-                            cardMessage.innerText = "This email is already verified and saved in our cloud server. You can head straight to login.";
-                            
-                            loader.style.opacity = '0';
-                            setTimeout(() => loader.style.display = 'none', 500);
-                            successCard.classList.add('show-card');
-                            return;
-                        }
-
-                        // 🛠️ [الخطوة 3]: فحص الـ Username ثانياً سحابياً ومنع الإنشاء فوراً لو مأخوذ
+                        // 🛠️ [الخطوة 2]: فحص الـ Username سحابياً أولاً ومنع أي تكرار
                         const usernameRef = ref(db, 'takenUsernames/' + decodedUser);
                         const usernameSnapshot = await get(usernameRef);
 
@@ -314,7 +282,7 @@
                             return; 
                         }
 
-                        // 🛠️ [الخطوة 4]: إذا نجحت الفحوصات السابقة بالترتيب.. يبدأ إنشاء الحساب الفعلي بـ Firebase Auth
+                        // 🛠️ [الخطوة 3]: تشغيل نظام Firebase Auth لإنشاء الحساب، وفحص الإيميل بيتم تلقائياً وبسرعة فائقة هنا
                         createUserWithEmailAndPassword(auth, email, decodedPassword)
                             .then((userCredential) => {
                                 const firebaseUser = userCredential.user;
@@ -350,6 +318,7 @@
                                 });
                             })
                             .catch((error) => {
+                                // هنا الـ Firebase بيصطاد الإيميل المتكرر فوراً وبدون أي تعليق
                                 if (error.code === 'auth/email-already-in-use') {
                                     cardIconBox.style.borderColor = "#f59e0b";
                                     cardIconBox.style.background = "rgba(245, 158, 11, 0.05)";
