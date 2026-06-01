@@ -75,10 +75,13 @@
         .icon-btn {
             position: relative; width: 36px; height: 36px; border-radius: var(--r);
             display: flex; align-items: center; justify-content: center; color: var(--text-muted);
-            font-size: 18px;
+            font-size: 18px; transition: all 0.2s;
         }
+        .icon-btn:hover, .icon-btn.active { color: var(--accent); background: var(--bg-hover); }
 
-        .notif-dot { position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; background: #ef4444; border-radius: 50%; }
+        /* 🔴 النقطة الحمراء للإشعارات الجديدة */
+        .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: none; box-shadow: 0 0 8px #ef4444; }
+        .notif-dot.show-dot { display: block; }
         .nav-divider { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
 
         .profile-trigger {
@@ -97,7 +100,7 @@
         .chevron { font-size: 14px; color: var(--text-muted); transition: transform .3s; display: flex; align-items: center; }
         .profile-trigger.active .chevron { transform: rotate(180deg); color: var(--accent); }
 
-        /* ── Dropdown Panel ────────────────────────── */
+        /* ── Dropdown Panels ────────────────────────── */
         .panel {
             position: absolute; top: calc(100% + 12px); right: 0; width: 280px;
             background: #0b071e; border: 1px solid var(--border); border-radius: var(--r-lg);
@@ -130,11 +133,42 @@
         .item-label { display: block; font-size: 12px; font-weight: 600; }
         .item-sub { display: block; font-size: 10px; color: var(--text-muted); }
 
-        /* ── Social Media ── */
+        /* ── 📩 نـظام الـبريد والإشـعارات الـمطور ── */
+        .notif-panel { width: 340px; }
+        .notif-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .notif-header h4 { font-size: 14px; font-weight: 700; color: #fff; }
+        .clear-all-btn { font-size: 11px; color: var(--accent); font-weight: 600; }
+        .clear-all-btn:hover { text-decoration: underline; }
+        .notif-list { max-height: 320px; overflow-y: auto; padding: 6px; }
+        .notif-empty { padding: 30px 10px; text-align: center; color: var(--text-muted); font-size: 12px; }
+        .notif-empty i { font-size: 24px; display: block; margin-bottom: 6px; color: rgba(255,255,255,0.05); }
+        
+        .notif-item { position: relative; padding: 12px; border-radius: var(--r); margin-bottom: 4px; background: rgba(255,255,255,0.01); border: 1px solid transparent; transition: all 0.2s; cursor: pointer; }
+        .notif-item:hover { background: rgba(255,255,255,0.03); border-color: rgba(0, 243, 255, 0.1); }
+        .notif-item.unread { background: rgba(0, 243, 255, 0.03); border-left: 3px solid var(--accent); }
+        html[dir="rtl"] .notif-item.unread { border-left: none; border-right: 3px solid var(--accent); }
+        
+        .notif-item-header { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; color: var(--text-muted); }
+        .notif-title { font-weight: 700; color: #fff; font-size: 12px; }
+        
+        /* تأثير اختفاء النص التدريجي للرسايل الطويلة */
+        .notif-body { font-size: 12px; color: #94a3b8; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; transition: max-height 0.3s ease; }
+        .notif-item.expanded .notif-body { display: block; -webkit-line-clamp: unset; text-overflow: clip; color: #e2e8f0; }
+        
+        .notif-actions { display: flex; justify-content: flex-end; margin-top: 6px; opacity: 0; transition: opacity 0.2s; }
+        .notif-item:hover .notif-actions { opacity: 1; }
+        .notif-del-btn { font-size: 11px; color: var(--text-danger); display: flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); }
+        .notif-del-btn:hover { background: rgba(239, 68, 68, 0.2); color: #ff6b6b; }
+
+        /* ── Social Media & ⚡ ANIMATION RE-ENABLED ⚡ ── */
         .social-container { margin: 20px 0 30px 0; width: 100%; display: flex; justify-content: flex-start; }
         .social-wrapper { display: flex; gap: 12px; padding: 15px; border-radius: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); width: 100%; overflow-x: auto; }
         .social-btn { position: relative; display: flex; align-items: center; justify-content: flex-start; height: 48px; width: 48px; padding: 14px; border-radius: 50px; color: #9d8dbb; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); flex-shrink: 0; }
-        .social-btn i { font-size: 20px; text-align: center; z-index: 2; transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; width: 20px; }
+        
+        /* 🔄 تأثير دوران الأيقونة عند التمرير بالماوس واجه مخصصة */
+        .social-btn i { font-size: 20px; text-align: center; z-index: 2; transition: transform 0.5s ease; display: flex; align-items: center; justify-content: center; width: 20px; }
+        .social-btn:hover i { transform: rotate(360deg); }
+        
         .social-btn .btn-text { font-size: 13px; font-weight: 700; white-space: nowrap; margin-left: 10px; opacity: 0; z-index: 2; transform: translateX(-10px); transition: all 0.3s ease; }
         html[dir="rtl"] .social-btn .btn-text { margin-left: 0; margin-right: 10px; transform: translateX(10px); }
         .social-btn:hover { width: 145px; color: #ffffff; transform: translateY(-3px); }
@@ -184,7 +218,6 @@
         .modal-overlay.active .settings-modal { transform: scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; flex-shrink: 0; }
         
-        /* 💡 تم فصل النصوص جوه علامة span مستقلة لحماية الأيقونة من الحذف عند تحويل اللغة */
         .modal-header h3 { font-size: 18px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
         .close-modal-btn { color: #64748b; font-size: 18px; display: flex; align-items: center; }
         .close-modal-btn:hover { color: #ff0055; }
@@ -204,9 +237,14 @@
         html[dir="rtl"] .eye-btn { right: auto; left: 12px; }
         .eye-btn:hover { color: var(--accent); }
 
-        /* 👁️ زرار التأكيد بيظهر دايماً وبثبات تحت الحقول */
-        .btn-confirm { width: 100%; padding: 12px; background: var(--accent); color: #000; border-radius: 6px; font-weight: 700; font-size: 14px; margin-top: 12px; display: none; box-shadow: 0 0 15px var(--accent-glow); transition: 0.2s; flex-shrink: 0; }
-        .btn-confirm.show-btn { display: block; }
+        /* ✨ تحسين ظهور وتأثير حركة زرار التغيير */
+        .btn-confirm { width: 100%; padding: 12px; background: var(--accent); color: #000; border-radius: 6px; font-weight: 700; font-size: 14px; margin-top: 12px; display: none; box-shadow: 0 0 15px var(--accent-glow); transition: all 0.3s ease; flex-shrink: 0; }
+        .btn-confirm.show-btn { display: block; animation: fadeInBtn 0.3s forwards; }
+
+        @keyframes fadeInBtn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .dev-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
         .dev-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 12px; border-radius: 10px; }
@@ -226,15 +264,30 @@
 
         <div class="nav-right">
             <button class="lang-btn" id="langToggleBtn" onclick="toggleLanguage()">العربية</button>
-            <div class="panel-wrap">
-                <button class="icon-btn" aria-label="Notifications">
-                    <div class="notif-dot"></div>
+            
+            <div class="panel-wrap" style="position: relative;">
+                <button class="icon-btn" id="notifBellBtn" aria-label="Notifications">
+                    <div class="notif-dot" id="bellDot"></div>
                     <i class="ri-notification-3-line"></i>
                 </button>
+
+                <div class="panel notif-panel" id="notifPanel">
+                    <div class="notif-header">
+                        <h4 id="lblNotifTitle">Inbox Mail</h4>
+                        <button class="clear-all-btn" id="lblClearAll" onclick="clearAllNotifications()">Clear All</button>
+                    </div>
+                    <div class="notif-list" id="notifListContainer">
+                        <div class="notif-empty">
+                            <i class="ri-mail-open-line"></i>
+                            <span id="lblNoNotif">No new messages from bot</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <div class="nav-divider"></div>
 
-            <div class="panel-wrap" id="profileWrap">
+            <div class="panel-wrap" style="position: relative;" id="profileWrap">
                 <button class="profile-trigger" id="profileBtn">
                     <div class="avatar" id="avatarCircle">FH</div>
                     <span class="trigger-name" id="topTriggerName">User</span>
@@ -326,7 +379,7 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="settings-modal">
             <div class="modal-header">
-                <h3><i class="ri-shield-user-line" style="color: var(--accent);"></i> <span id="txtModalTitle">Profile Settings</span></h3>
+                <h3><i class="ri-shield-user-line" style="color: var(--accent);"></i> <span id="txtModalTitle" data-en="Profile Settings" data-ar="إعدادات الحساب الشخصي">Profile Settings</span></h3>
                 <button class="close-modal-btn" onclick="closeSettingsModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="modal-body-form">
@@ -339,7 +392,7 @@
                     <label id="lblFormNewPass">New Password</label>
                     <div class="password-wrapper">
                         <input type="password" id="newPassword" placeholder="••••••••" oninput="checkPasswordInputs()">
-                        <button class="eye-btn" onclick="toggleSinglePasswordSystem()"><i class="ri-eye-off-line" id="sharedEyeIcon"></i></button>
+                        <button class="eye-btn" type="button" onclick="toggleSinglePasswordSystem()"><i class="ri-eye-off-line" id="sharedEyeIcon"></i></button>
                     </div>
                 </div>
                 
@@ -358,7 +411,7 @@
     <div class="modal-overlay" id="devModal">
         <div class="settings-modal" style="max-width: 400px;">
             <div class="modal-header">
-                <h3><i class="ri-git-branch-line" style="color: var(--accent);"></i> <span id="txtDevModalTitle">Host Founders</span></h3>
+                <h3><i class="ri-git-branch-line" style="color: var(--accent);"></i> <span id="txtDevModalTitle" data-en="Host Founders" data-ar="مؤسسي ومطوري الهوست">Host Founders</span></h3>
                 <button class="close-modal-btn" onclick="closeDevModal()"><i class="ri-close-line"></i></button>
             </div>
             <div class="dev-grid">
@@ -377,7 +430,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, onValue, set, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyD0SQ_6mbLLquTN60Ui2T2nLatmzh-ikvk",
@@ -400,21 +453,24 @@
                 dashOpts: "Dashboard Options", sList: "Servers List", sSub: "Manage active instances", accSet: "Account Settings", accSub: "Update profile & security",
                 devHub: "Developer Hub", devArea: "Developer Area", tools: "Tools", logout: "Log Out",
                 mTitle: "Profile Settings", fDisp: "Display Name", fUser: "Username", fEmail: "Email Address", fUid: "Unique Identifier (UID)", fNew: "New Password", fConf: "Confirm Password", btnConf: "Confirm Changes",
-                createSrv: "Create Server", createSrvSub: "Deploy a brand new node", devTitle: "Host Founders"
+                createSrv: "Create Server", createSrvSub: "Deploy a brand new node", devTitle: "Host Founders",
+                notifTitle: "Inbox Mail", clearAll: "Clear All", noNotif: "No new messages from bot"
             },
             ar: {
                 toggleBtn: "English", sub: "إليك نظرة كاملة شاملة على خوادمك المؤتمتة النشطة ومواردك السحابية.",
                 dashOpts: "خيارات لوحة التحكم", sList: "قائمة السيرفرات", sSub: "إدارة السيرفرات الفعالة", accSet: "إعدادات الحساب", accSub: "تحديث الأمان والبروفايل",
                 devHub: "مركز التطوير", devArea: "منطقة المطور", tools: "الأدوات", logout: "تسجيل الخروج",
                 mTitle: "إعدادات الحساب الشخصي", fDisp: "اسم العرض الحقيقي", fUser: "اسم المستخدم الفريد", fEmail: "البريد الإلكتروني الحالي", fUid: "المعرف الخاص الفريد (UID)", fNew: "كلمة المرور الجديدة", fConf: "تأكيد كلمة المرور", btnConf: "حفظ وتأكيد التغييرات",
-                createSrv: "أنشأ سيرفر", createSrvSub: "بناء وإطلاق خادم سحابي جديد", devTitle: "مؤسسي ومطوري الهوست"
+                createSrv: "أنشأ سيرفر", createSrvSub: "بناء وإطلاق خادم سحابي جديد", devTitle: "مؤسسي ومطوري الهوست",
+                notifTitle: "صندوق البريد الوارد", clearAll: "مسح الكل", noNotif: "لا يوجد رسائل بريدية جديدة من البوت"
             }
         };
 
         let currentLang = "en";
         let globalCachedUser = { displayName: "Cloud User", username: "user" }; 
+        let userNotifications = {};
 
-        // 💡 تحديث دالة الترجمة لتغيير النصوص فقط دون مسح الأيقونات الأساسية
+        // 💡 تحديث الترجمة الذكية لحماية الأيقونات في كل مكان
         window.toggleLanguage = function() {
             currentLang = currentLang === "en" ? "ar" : "en";
             const html = document.getElementById('htmlTag');
@@ -437,9 +493,11 @@
             document.getElementById('lblTools').innerText = t.tools;
             document.getElementById('lblLogout').innerText = t.logout;
             
-            // تم التعديل هنا: نغير النص فقط دون المساس بالأيقونات
+            // تحديث نصوص المودالات المستهدفة دون مساس بكود الأيقونة
             document.getElementById('txtModalTitle').innerText = t.mTitle;
             document.getElementById('txtDevModalTitle').innerText = t.devTitle;
+            document.getElementById('lblNotifTitle').innerText = t.notifTitle;
+            document.getElementById('lblClearAll').innerText = t.clearAll;
             
             document.getElementById('lblFormDisplay').innerText = t.fDisp;
             document.getElementById('lblFormUser').innerText = t.fUser;
@@ -453,12 +511,11 @@
             document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${dispName} 👋` : `Welcome, ${dispName} 👋`;
             
             updateGridLanguage();
+            renderNotificationsUI();
         }
 
-        // ⚡ تعديل جلب البيانات لتعمل فوراً من الـ Auth لحل مشكلة الـ Loading للأبد
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // 1. املأ البيانات الأساسية فوراً من الـ Auth دون انتظار قاعدة البيانات
                 const defaultName = user.displayName || "Cloud User";
                 globalCachedUser.displayName = defaultName;
                 
@@ -477,7 +534,6 @@
 
                 document.getElementById('welcomeHeading').innerText = currentLang === 'ar' ? `أهلاً بك، ${defaultName} 👋` : `Welcome, ${defaultName} 👋`;
 
-                // 2. محاولة جلب الـ Username والـ DisplayName المخصص لو كان مرفوع على الـ Realtime Database
                 try {
                     const userRef = ref(db, 'users/' + user.uid);
                     const snapshot = await get(userRef);
@@ -495,15 +551,121 @@
                             document.getElementById('modalUsername').value = "@" + dbData.username;
                         }
                     }
-                } catch (err) { 
-                    console.log("قاعدة البيانات غير مستجيبة، تم استخدام بيانات الحساب الافتراضية بنجاح بنظام الحماية المستقل."); 
-                }
+                } catch (err) { console.log("Database offline, using active state cache safety mode."); }
                 
+                // تشغيل نظام الاستماع الفوري للبريد والإشعارات من الفايربيز للربط بالبوت
+                setupNotificationListener(user.uid);
                 renderServersGrid();
             } else { 
                 window.location.href = 'index.html'; 
             }
         });
+
+        // 📩 نظام جلب وفلترة الإشعارات تلقائياً مع حذف الرسالة بعد يومين (48 ساعة)
+        function setupNotificationListener(uid) {
+            const notifRef = ref(db, `notifications/${uid}`);
+            onValue(notifRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    userNotifications = snapshot.val();
+                    const now = Date.now();
+                    const fortyEightHours = 2 * 24 * 60 * 60 * 1000;
+
+                    // مراجعة التوقيت وحذف المنتهي تلقائياً
+                    Object.keys(userNotifications).forEach(key => {
+                        const msg = userNotifications[key];
+                        if (msg.timestamp && (now - msg.timestamp > fortyEightHours)) {
+                            remove(ref(db, `notifications/${uid}/${key}`));
+                            delete userNotifications[key];
+                        }
+                    });
+                } else {
+                    userNotifications = {};
+                }
+                renderNotificationsUI();
+            });
+        }
+
+        function renderNotificationsUI() {
+            const container = document.getElementById('notifListContainer');
+            const bellDot = document.getElementById('bellDot');
+            const keys = Object.keys(userNotifications);
+            
+            if (keys.length === 0) {
+                bellDot.classList.remove('show-dot');
+                container.innerHTML = `
+                    <div class="notif-empty">
+                        <i class="ri-mail-open-line"></i>
+                        <span>${translations[currentLang].noNotif}</span>
+                    </div>
+                `;
+                return;
+            }
+
+            // تفعيل النقطة الحمراء لو فيه أي رسالة غير مقروءة
+            const hasUnread = keys.some(key => userNotifications[key].read === false);
+            if (hasUnread) {
+                bellDot.classList.add('show-dot');
+            } else {
+                bellDot.classList.remove('show-dot');
+            }
+
+            container.innerHTML = '';
+            // ترتيب الإشعارات من الأحدث للأقدم
+            keys.sort((a,b) => userNotifications[b].timestamp - userNotifications[a].timestamp).forEach(key => {
+                const item = userNotifications[key];
+                const dateStr = new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                const div = document.createElement('div');
+                div.className = `notif-item ${item.read === false ? 'unread' : ''}`;
+                div.id = `notif-${key}`;
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleNotificationExpand(key);
+                };
+
+                div.innerHTML = `
+                    <div class="notif-item-header">
+                        <span class="notif-title">${item.title || 'System Notification'}</span>
+                        <span>${dateStr}</span>
+                    </div>
+                    <div class="notif-body">${item.message || ''}</div>
+                    <div class="notif-actions">
+                        <button class="notif-del-btn" onclick="deleteNotification(event, '${key}')">
+                            <i class="ri-delete-bin-6-line"></i> ${currentLang === 'ar' ? 'حذف' : 'Delete'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // تكبير وقراءة الرسالة الطويلة بالكامل وعمل سهم الاختفاء التدريجي
+        window.toggleNotificationExpand = function(key) {
+            const el = document.getElementById(`notif-${key}`);
+            if(!el) return;
+            
+            el.classList.toggle('expanded');
+            
+            if (auth.currentUser && userNotifications[key] && userNotifications[key].read === false) {
+                update(ref(db, `notifications/${auth.currentUser.uid}/${key}`), { read: true });
+            }
+        }
+
+        // حذف الرسالة يدوياً للمستخدم
+        window.deleteNotification = function(event, key) {
+            event.stopPropagation();
+            if (auth.currentUser) {
+                remove(ref(db, `notifications/${auth.currentUser.uid}/${key}`));
+            }
+        }
+
+        window.clearAllNotifications = function() {
+            if (auth.currentUser && Object.keys(userNotifications).length > 0) {
+                if(confirm(currentLang === 'ar' ? "هل تريد مسح جميع الرسائل الواردة؟" : "Clear all inbox messages?")) {
+                    remove(ref(db, `notifications/${auth.currentUser.uid}`));
+                }
+            }
+        }
 
         const randomIcons = ['ri-cpu-line', 'ri-discord-fill', 'ri-instance-line'];
 
@@ -555,7 +717,7 @@
             document.querySelectorAll('.lbl-manage-btn').forEach(el => el.innerText = currentLang === 'ar' ? 'دخول وإدارة السيرفر' : 'Manage');
         }
 
-        // 👁️ تشغيل العين الواحدة المشتركة بدقة للحقلين
+        // العين الواحدة المشتركة للحقلين
         window.toggleSinglePasswordSystem = function() {
             const passInput = document.getElementById('newPassword');
             const confirmInput = document.getElementById('confirmPassword');
@@ -572,11 +734,12 @@
             }
         }
 
-        // إظهار وإخفاء زرار الحفظ تحت الحقول فوراً عند تطابق الرقم السري
+        // فحص الباسورد وعمل تأثير الصعود والظهور لزر التأكيد تحت الحقول مباشرة
         window.checkPasswordInputs = function() {
             const pass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
             const btn = document.getElementById('confirmBtn');
+            
             if (pass.length >= 6 && pass === confirmPass) {
                 btn.classList.add('show-btn');
             } else {
@@ -586,16 +749,30 @@
 
         const profileBtn = document.getElementById('profileBtn');
         const profilePanel = document.getElementById('profilePanel');
+        const notifBellBtn = document.getElementById('notifBellBtn');
+        const notifPanel = document.getElementById('notifPanel');
 
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            notifPanel.classList.remove('open');
+            notifBellBtn.classList.remove('active');
             profilePanel.classList.toggle('open');
             profileBtn.classList.toggle('active');
+        });
+
+        notifBellBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profilePanel.classList.remove('open');
+            profileBtn.classList.remove('active');
+            notifPanel.classList.toggle('open');
+            notifBellBtn.classList.toggle('active');
         });
 
         document.addEventListener('click', () => {
             profilePanel.classList.remove('open');
             profileBtn.classList.remove('active');
+            notifPanel.classList.remove('open');
+            notifBellBtn.classList.remove('active');
         });
 
         window.openSettingsModal = function() { document.getElementById('settingsModal').classList.add('active'); }
