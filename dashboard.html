@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orb Music - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        /* [نفس الـ CSS الفخم بتاع الألوان والأنيميشنز من الكود اللي فات] */
+        :root {
+            --bg-color: #0a0a0c;
+            --card-bg: #121218;
+            --sidebar-bg: #0e0e12;
+            --text-color: #f1f1f1;
+            --text-muted: #8a8b92;
+            --accent-color: #5865F2; 
+            --neon-shine: linear-gradient(45deg, #5865F2, #eb459e);
+        }
+        [data-theme="light"] {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --sidebar-bg: #e3e5e8;
+            --text-color: #1c1e21;
+            --text-muted: #65676b;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; overflow: hidden; height: 100vh; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; background-color: var(--card-bg); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo h3 { margin: 0; background: var(--neon-shine); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 10px; font-size: 22px; }
+        
+        /* البحث الأنيميتد جوه اللوحة */
+        .search-container { position: relative; display: flex; align-items: center; }
+        .search-box { width: 40px; height: 40px; border-radius: 25px; border: 2px solid var(--accent-color); padding: 0; background: rgba(255,255,255,0.02); color: var(--text-color); outline: none; transition: width 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); cursor: pointer; }
+        .search-box:focus { width: 350px; padding: 0 45px 0 20px; cursor: text; background: var(--bg-color); }
+        .search-icon { position: absolute; right: 14px; color: var(--accent-color); pointer-events: none; transition: transform 0.3s; }
+        .search-box:focus + .search-icon { transform: rotate(90deg); }
+        
+        .suggestions-box { position: absolute; top: 50px; right: 0; width: 350px; background: var(--card-bg); border-radius: 8px; display: none; z-index: 100; max-height: 250px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); }
+        .suggestion-item { padding: 12px 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .suggestion-item:hover { background: rgba(88, 101, 242, 0.1); color: var(--accent-color); }
+
+        .theme-toggle, .btn-action { background: none; border: none; color: var(--text-color); font-size: 20px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .theme-toggle:hover { background-color: rgba(255,255,255,0.08); transform: scale(1.15); }
+        
+        .main-layout { display: grid; grid-template-columns: 300px 1fr 80px; height: calc(100vh - 65px); }
+        .guilds-sidebar { grid-column: 3; background-color: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center; padding: 15px 0; gap: 15px; overflow-y: auto; }
+        .guild-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--card-bg); display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 0.3s; border: 2px solid transparent; cursor: pointer; }
+        .guild-icon:hover { border-radius: 15px; background-color: var(--accent-color); box-shadow: 0 0 15px var(--accent-color); }
+        
+        .info-sidebar { grid-column: 1; background-color: var(--sidebar-bg); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .user-profile-card { background: var(--card-bg); border-radius: 12px; padding: 15px; position: relative; overflow: hidden; }
+        .user-banner { height: 65px; width: 100%; position: absolute; top: 0; left: 0; background: var(--accent-color); }
+        .user-avatar { width: 65px; height: 65px; border-radius: 50%; border: 4px solid var(--card-bg); position: relative; z-index: 2; margin-top: 25px; }
+        
+        .active-voice-card { background: linear-gradient(135deg, rgba(88,101,242,0.1), rgba(235,69,158,0.05)); border-radius: 12px; padding: 15px; border: 1px solid rgba(88,101,242,0.2); display: none; }
+        .live-timer { color: #43b581; font-weight: bold; }
+        
+        .content-area { grid-column: 2; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 25px; }
+        .player-view-container { width: 100%; max-width: 780px; background-color: var(--card-bg); border-radius: 16px; overflow: hidden; display: none; }
+        .video-canvas { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
+        .video-canvas iframe { width: 100%; height: 100%; border: none; }
+        .ripple-indicator { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); padding: 20px; border-radius: 50%; font-size: 24px; opacity: 0; transition: all 0.3s; pointer-events: none; }
+        
+        .timeline-container { display: flex; align-items: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.2); }
+        .seeker-bar { flex: 1; -webkit-appearance: none; height: 6px; border-radius: 3px; background: #4f545c; outline: none; }
+        .seeker-bar::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-color); cursor: pointer; }
+        
+        .meta-actions-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+        .like-btn.active { color: #43b581; }
+        .blur-btn.active { color: #f04747; }
+        
+        .limit-tracker-box { width: 100%; max-width: 780px; background: var(--card-bg); border-radius: 10px; padding: 15px; }
+        .progress-rail { height: 8px; background: #2f3136; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #43b581, #faa61a); transition: width 0.5s; }
+        
+        .recommendations-grid { width: 100%; max-width: 780px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .video-card-thumb { background: var(--card-bg); border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+        .video-card-thumb:hover { transform: translateY(-5px); }
+        .thumb-img-holder { aspect-ratio: 16/9; background: #202225; position: relative; }
+        .thumb-img-holder img { width: 100%; height: 100%; object-fit: cover; }
+        .duration-badge { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.8); padding: 2px 6px; font-size: 11px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر وفيه البحث الأنيميتد و اسم اللوحة الجديد -->
+    <div class="navbar">
+        <div class="logo">
+            <h3><i class="fa-solid fa-circle-nodes fa-spin"></i> Orb Music</h3>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchInp" placeholder="Search song or paste YouTube link..." oninput="showSuggestions(this.value)">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <div class="suggestions-box" id="suggestionsBox"></div>
+        </div>
+
+        <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+    </div>
+
+    <!-- لوحة التحكم مقسمة وجاهزة -->
+    <div class="main-layout" id="appLayout">
+        
+        <!-- القائمة الشمال: الحساب والروم الصوتي اللحظي -->
+        <div class="info-sidebar">
+            <div class="user-profile-card">
+                <div class="user-banner" id="userBanner"></div>
+                <img src="https://cdn.discordapp.com/embed/avatars/0.png" class="user-avatar" id="userAvatar">
+                <h4 id="displayName" style="margin: 8px 0 2px 0; position:relative; z-index:2;">Malek Dev</h4>
+                <p id="username" style="margin: 0; font-size: 13px; color: var(--text-muted); position:relative; z-index:2;">@orb_user</p>
+                <p id="userId" style="margin: 8px 0; font-size: 11px; opacity: 0.4;">ID: 443322110055</p>
+                <div id="guildCount" style="font-size: 12px; font-weight:600; color: var(--accent-color);">Servers: 8 Servers</div>
+            </div>
+
+            <div class="active-voice-card animate__animated animate__fadeIn" id="voiceCard">
+                <h4 style="margin: 0 0 10px 0; color: var(--accent-color);"><i class="fa-solid fa-tower-broadcast"></i> Voice Session</h4>
+                <div style="font-size: 13px; margin-bottom: 5px;">Room: <span id="vRoomName" style="font-weight:600;">Lounge</span></div>
+                <div style="font-size: 13px; margin-bottom: 5px;">Active Users: <span id="vUserCount">0</span> inside</div>
+                <div style="font-size: 13px; margin-bottom: 12px;">Runtime: <span class="live-timer" id="liveClock">00:00:00</span></div>
+            </div>
+        </div>
+
+        <!-- النص: مشغل الفيديو وقائمة الاقتراحات والـ Limit -->
+        <div class="content-area">
+            <div class="player-view-container animate__animated animate__zoomIn" id="playerContainer">
+                <div class="video-canvas" id="videoCanvas" ondblclick="triggerCanvasDoubleTap(event)">
+                    <iframe id="videoStreamFrame" src="" allow="autoplay"></iframe>
+                    <div class="ripple-indicator" id="rippleLeft" style="left: 40px;"><i class="fa-solid fa-backward"></i> -10s</div>
+                    <div class="ripple-indicator" id="rippleRight" style="right: 40px;"><i class="fa-solid fa-forward"></i> +10s</div>
+                </div>
+
+                <div style="padding: 20px 20px 0 20px;">
+                    <h2 id="currentTrackTitle" style="margin:0; font-size: 20px;">Track Title</h2>
+                    <p id="currentTrackAuthor" style="margin:5px 0 0 0; color: var(--text-muted); font-size:14px;">Artist</p>
+                </div>
+
+                <div class="timeline-container">
+                    <span id="timeCurrent">0:00</span>
+                    <input type="range" class="seeker-bar" id="trackProgressBar" min="0" max="100" value="0" oninput="executeTimelineScrub(this.value)">
+                    <span id="timeTotal">0:00</span>
+                </div>
+
+                <div class="meta-actions-bar">
+                    <div class="like-dislike-group">
+                        <button class="like-btn" id="btnLike" onclick="toggleReaction('like')"><i class="fa-solid fa-thumbs-up"></i> <span id="likeCount">1.2K</span></button>
+                        <button class="blur-btn" id="btnDislike" onclick="toggleReaction('dislike')"><i class="fa-solid fa-thumbs-down"></i></button>
+                    </div>
+                    <div>
+                        <button class="btn-action" style="background: rgba(240,71,71,0.1); color:#f04747; display:inline-block;" onclick="fireControlEvent('stop')"><i class="fa-solid fa-square"></i></button>
+                        <button class="btn-action" style="background: rgba(88,101,242,0.15); color:var(--accent-color); display:inline-block;" id="btnPauseToggle" onclick="togglePlaybackState()"><i class="fa-solid fa-pause"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="limit-tracker-box" id="limitTrackerPanel" style="display:none;">
+                <div style="display:flex; justify-content:space-between; font-size:14px;">
+                    <span><i class="fa-solid fa-hourglass-half"></i> Daily Usage Quota</span>
+                    <span id="quotaTextString">4.5 / 10 Hours</span>
+                </div>
+                <div class="progress-rail"><div class="progress-fill" id="quotaProgressBarFill" style="width: 45%;"></div></div>
+            </div>
+
+            <h3 style="align-self: flex-start; width:100%; max-width:780px; margin: 10px 0 0 0;">Trending Tracks</h3>
+            <div class="recommendations-grid" id="recommendationsGrid"></div>
+        </div>
+
+        <!-- اليمين: قائمة سيرفرات العضو -->
+        <div class="guilds-sidebar" id="guildsSidebarRail"></div>
+    </div>
+
+    <script>
+        const forbiddenWordsList = ["sex", "porn", "سكس", "اباحي", "شرموطة", "نيك", "زب", "كس"];
+        
+        // كود معالجة التوكن والـ OAuth2 بعد الرجوع من ديسكورد
+        window.onload = function() {
+            const fragment = new URLSearchParams(window.location.hash.slice(1));
+            const accessToken = fragment.get('access_token');
+            
+            if (accessToken) {
+                // هنا في المستقبل هتبعت التوكن للبوت عشان يجيب السيرفرات الحقيقية
+                console.log("تم الحصول على توكن ديسكورد بنجاح: " + accessToken);
+            }
+            
+            // تشغيل السيرفرات التجريبية والاغاني تلقائياً لرؤية التصميم
+            renderServerGuildIcons();
+            switchActiveGuildChannelContext('101', 'Orb Dev Server');
+        }
+
+        document.getElementById('searchInp').addEventListener('keypress', function(ev) {
+            if (ev.key === 'Enter') {
+                let textValue = this.value.toLowerCase();
+                let isViolated = forbiddenWordsList.some(badWord => textValue.includes(badWord));
+                if (isViolated) {
+                    alert("Forbidden Content! You broke security protocols. Resetting.");
+                    window.location.href = "index.html"; // بيرجعه لصفحة الترحيب
+                    return;
+                }
+                alert("Searching for: " + this.value);
+            }
+        });
+
+        function showSuggestions(val) {
+            const box = document.getElementById('suggestionsBox');
+            if(val.length < 2) { box.style.display = 'none'; return; }
+            box.innerHTML = `
+                <div class="suggestion-item" onclick="selectSearchSuggestion('${val} official')"><i class="fa-solid fa-magnifying-glass"></i> ${val} official song</div>
+                <div class="suggestion-item" onclick="selectSearchSuggestion('${val} remix')"><i class="fa-solid fa-magnifying-glass"></i> ${val} remix</div>
+            `;
+            box.style.display = 'block';
+        }
+
+        function selectSearchSuggestion(phrase) {
+            document.getElementById('searchInp').value = phrase;
+            document.getElementById('suggestionsBox').style.display = 'none';
+        }
+
+        function toggleTheme() {
+            const doc = document.documentElement;
+            if (doc.getAttribute('data-theme') === 'light') { doc.removeAttribute('data-theme'); } 
+            else { doc.setAttribute('data-theme', 'light'); }
+        }
+
+        function renderServerGuildIcons() {
+            const sidebar = document.getElementById('guildsSidebarRail');
+            sidebar.innerHTML = `
+                <div class="guild-icon" onclick="switchActiveGuildChannelContext('101', 'Orb Dev Server')">OS</div>
+                <div class="guild-icon" onclick="switchActiveGuildChannelContext('102', 'Malek Hub')">MH</div>
+            `;
+        }
+
+        function switchActiveGuildChannelContext(id, name) {
+            document.getElementById('voiceCard').style.display = 'block';
+            document.getElementById('limitTrackerPanel').style.display = 'block';
+            hydrateRecommendedTracks();
+        }
+
+        function hydrateRecommendedTracks() {
+            const grid = document.getElementById('recommendationsGrid');
+            grid.innerHTML = `
+                <div class="video-card-thumb" onclick="playTrack('Tamer Hosny - El Hafla', 'dQw4w9WgXcQ')">
+                    <div class="thumb-img-holder"><img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg"><div class="duration-badge">03:45</div></div>
+                    <div style="padding:10px;"><strong>Tamer Hosny - El Hafla</strong></div>
+                </div>
+            `;
+        }
+
+        function playTrack(title, id) {
+            document.getElementById('playerContainer').style.display = 'block';
+            document.getElementById('currentTrackTitle').innerText = title;
+            document.getElementById('videoStreamFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1&controls=0`;
+        }
+
+        function triggerCanvasDoubleTap(e) {
+            const boundary = document.getElementById('videoCanvas').getBoundingClientRect();
+            if ((e.clientX - boundary.left) > boundary.width / 2) {
+                document.getElementById('rippleRight').style.opacity = 1; setTimeout(() => document.getElementById('rippleRight').style.opacity = 0, 400);
+            } else {
+                document.getElementById('rippleLeft').style.opacity = 1; setTimeout(() => document.getElementById('rippleLeft').style.opacity = 0, 400);
+            }
+        }
+        function toggleReaction(type) {}
+        function togglePlaybackState() {}
+        function fireControlEvent(action) { if(action==='stop') document.getElementById('playerContainer').style.display='none'; }
+        function executeTimelineScrub(val) {}
+    </script>
+</body>
+</html>
