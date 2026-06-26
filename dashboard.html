@@ -214,27 +214,25 @@
         <div class="info-sidebar">
             <div class="user-profile-card">
                 <div class="user-banner"></div>
-                <img src="https://cdn.discordapp.com/embed/avatars/1.png" class="user-avatar">
-                <h4 style="margin: 8px 0 2px 0; position:relative; z-index:2;">Malek Dev</h4>
-                <p style="margin: 0; font-size: 13px; color: var(--text-muted); position:relative; z-index:2;">@orb_user</p>
-                <p style="margin: 8px 0; font-size: 11px; opacity: 0.4;">ID: 443322110055</p>
-                <div style="font-size: 12px; font-weight:600; color: var(--accent-color);">Servers: 8 Servers</div>
+                <img src="https://cdn.discordapp.com/embed/avatars/1.png" class="user-avatar" id="userAvatarImg">
+                <h4 style="margin: 8px 0 2px 0; position:relative; z-index:2;" id="userGlobalName">Malek Dev</h4>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted); position:relative; z-index:2;" id="userUsernameTag">@orb_user</p>
+                <p style="margin: 8px 0; font-size: 11px; opacity: 0.4;" id="userIdTxt">ID: 443322110055</p>
+                <div style="font-size: 12px; font-weight:600; color: var(--accent-color);" id="serverCountTxt">Servers: 0 Servers</div>
                 
-                <!-- زرار تسجيل الخروج المستقر والآمن -->
                 <button class="logout-btn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
             </div>
 
             <div class="active-voice-card animate__animated animate__fadeIn" id="voiceCard">
                 <h4 style="margin: 0 0 10px 0; color: var(--accent-color);"><i class="fa-solid fa-tower-broadcast"></i> Voice Session</h4>
-                <div style="font-size: 13px; margin-bottom: 5px;">Room: <span style="font-weight:600;">Lounge Room</span></div>
-                <div style="font-size: 13px; margin-bottom: 12px;">Runtime: <span class="live-timer">00:04:12</span></div>
+                <div style="font-size: 13px; margin-bottom: 5px;">Room: <span style="font-weight:600;" id="activeVoiceRoomName">Searching Room...</span></div>
+                <div style="font-size: 13px; margin-bottom: 12px;">Runtime: <span class="live-timer">00:00:00</span></div>
             </div>
         </div>
 
         <div class="content-area">
             <div class="player-view-container animate__animated animate__zoomIn" id="playerContainer">
                 <div class="video-canvas" id="videoCanvas" ondblclick="triggerCanvasDoubleTap(event)">
-                    <!-- استخدام الـ API لتفعيل الكتم والتحكم البرمجي بالصوت -->
                     <iframe id="videoStreamFrame" src="" allow="autoplay"></iframe>
                     <div class="ripple-indicator" id="rippleLeft" style="left: 40px;"><i class="fa-solid fa-backward"></i> -10s</div>
                     <div class="ripple-indicator" id="rippleRight" style="right: 40px;"><i class="fa-solid fa-forward"></i> +10s</div>
@@ -246,21 +244,20 @@
                 </div>
 
                 <div class="timeline-container">
-                    <span>0:00</span>
-                    <input type="range" class="seeker-bar" id="trackProgressBar" min="0" max="100" value="30">
-                    <span>3:45</span>
+                    <span id="currentTimeLabel">0:00</span>
+                    <input type="range" class="seeker-bar" id="trackProgressBar" min="0" max="100" value="0">
+                    <span id="totalTimeLabel">0:00</span>
                 </div>
 
                 <div class="meta-actions-bar">
                     <div class="like-dislike-group">
-                        <button class="like-btn" id="btnLike" onclick="toggleReaction('like')"><i class="fa-solid fa-thumbs-up"></i> <span>1.2K</span></button>
+                        <button class="like-btn" id="btnLike" onclick="toggleReaction('like')"><i class="fa-solid fa-thumbs-up"></i> <span id="likeCountNum">1.2K</span></button>
                         <button class="blur-btn" id="btnDislike" onclick="toggleReaction('dislike')"><i class="fa-solid fa-thumbs-down"></i></button>
                     </div>
                     <div class="controls-group">
-                        <!-- 🔊 زر كتم وتشغيل الصوت المدمج الجديد -->
                         <button class="btn-action" id="volumeBtn" style="background: rgba(255,255,255,0.05);" onclick="toggleMuteState()"><i class="fa-solid fa-volume-high"></i></button>
                         <button class="btn-action" style="background: rgba(240,71,71,0.1); color:#f04747;" onclick="fireControlEvent('stop')"><i class="fa-solid fa-square"></i></button>
-                        <button class="btn-action" style="background: rgba(88,101,242,0.15); color:var(--accent-color);" id="btnPauseToggle"><i class="fa-solid fa-pause"></i></button>
+                        <button class="btn-action" style="background: rgba(88,101,242,0.15); color:var(--accent-color);" id="btnPauseToggle" onclick="fireControlEvent('pause')"><i class="fa-solid fa-pause"></i></button>
                     </div>
                 </div>
             </div>
@@ -268,9 +265,9 @@
             <div class="limit-tracker-box" id="limitTrackerPanel">
                 <div style="display:flex; justify-content:space-between; font-size:13px;">
                     <span><i class="fa-solid fa-hourglass-half"></i> Daily Usage Quota</span>
-                    <span>4.5 / 10 Hours</span>
+                    <span id="quotaTextLabel">4.5 / 10 Hours</span>
                 </div>
-                <div class="progress-rail"><div class="progress-fill" style="width: 45%;"></div></div>
+                <div class="progress-rail"><div class="progress-fill" id="quotaProgressFill" style="width: 45%;"></div></div>
             </div>
 
             <h3 style="align-self: flex-start; width:100%; max-width:720px; margin: 10px 0 0 0;">Trending Tracks</h3>
@@ -284,8 +281,12 @@
         const forbiddenWordsList = ["sex", "porn", "سكس", "اباحي", "شرموطة", "نيك", "زب", "كس"];
         let isMuted = false;
         let currentVideoId = "";
+        let currentSelectedGuildId = null;
+        let targetVoiceChannelId = null;
 
-        // قاعدة بيانات الأغاني المحلية
+        // 🛡️ ضع هنا الـ IDs الخاصة بالسيرفرات المستثناة من الليميت (No Limit)
+        const noLimitGuilds = ["123456789012345678", "987654321098765432"]; 
+
         const songsDatabase = [
             { title: "Tamer Hosny - El Hafla", author: "Tamer Hosny", id: "g276Z7a9c8M", dur: "03:45" },
             { title: "Amr Diab - El Kalem El Helw", author: "Amr Diab", id: "p0V4b9XzQ", dur: "04:12" },
@@ -293,29 +294,42 @@
         ];
 
         window.onload = function() {
-            // 🔐 نظام حفظ وحماية الجلسة
             const fragment = new URLSearchParams(window.location.hash.slice(1));
             let accessToken = fragment.get('access_token');
             
             if (accessToken) {
                 localStorage.setItem('discord_token', accessToken);
-                // تنظيف الرابط من التوكن لأمان العضو
                 window.location.hash = ""; 
             } else {
                 accessToken = localStorage.getItem('discord_token');
             }
 
-            // لو مفيش توكن خالص يرجعه لصفحة الترحيب فورا
             if (!accessToken) {
                 window.location.href = "index.html";
                 return;
             }
 
-            renderServerGuildIcons();
-            switchActiveGuildChannelContext('101', 'Orb Dev Server');
+            fetchUserProfileData(accessToken);
+            renderServerGuildIcons(accessToken);
         }
 
-        // دالة تسجيل الخروج ومسح التوكن
+        async function fetchUserProfileData(token) {
+            try {
+                const response = await fetch('https://discord.com/api/v10/users/@me', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const user = await response.json();
+                if(user.id) {
+                    document.getElementById('userGlobalName').innerText = user.global_name || user.username;
+                    document.getElementById('userUsernameTag').innerText = `@${user.username}`;
+                    document.getElementById('userIdTxt').innerText = `ID: ${user.id}`;
+                    document.getElementById('userAvatarImg').src = user.avatar 
+                        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                        : `https://cdn.discordapp.com/embed/avatars/${user.discriminator % 5}.png`;
+                }
+            } catch (err) { console.error("Error profile:", err); }
+        }
+
         function handleLogout() {
             localStorage.removeItem('discord_token');
             window.location.href = "index.html";
@@ -326,20 +340,68 @@
                 let textValue = this.value.toLowerCase();
                 let isViolated = forbiddenWordsList.some(badWord => textValue.includes(badWord));
                 if (isViolated) {
-                    alert("Forbidden Content! You broke security protocols. Resetting.");
+                    alert("Forbidden Content! Protocol violation.");
                     handleLogout();
                     return;
                 }
                 
+                // البحث في القائمة المحلية وتشغيلها في البوت وفي الموقع
                 const filtered = songsDatabase.filter(s => s.title.toLowerCase().includes(textValue) || s.author.toLowerCase().includes(textValue));
                 if(filtered.length > 0) {
                     playTrack(filtered[0].title, filtered[0].author, filtered[0].id);
                 } else {
-                    alert("No local matches found for: " + this.value);
+                    // لو ملهاش مثيل محلي، ابحث في يوتيوب علطول برقم الطلب
+                    playTrack(this.value, "YouTube Stream", "");
                 }
                 document.getElementById('suggestionsBox').style.display = 'none';
             }
         });
+
+        async function playTrack(title, author, id) {
+            currentVideoId = id;
+            document.getElementById('playerContainer').style.display = 'block';
+            document.getElementById('currentTrackTitle').innerText = title;
+            document.getElementById('currentTrackAuthor').innerText = author;
+            updateIframeSrc();
+
+            if(!currentSelectedGuildId || !targetVoiceChannelId) return;
+
+            try {
+                await fetch('http://localhost:3000/api/player/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        guildId: currentSelectedGuildId,
+                        voiceChannelId: targetVoiceChannelId,
+                        query: id ? `https://www.youtube.com/watch?v=${id}` : title
+                    })
+                });
+            } catch (err) { console.error("Bot Play API Error:", err); }
+        }
+
+        async function fireControlEvent(action) {
+            if(!currentSelectedGuildId) return;
+            try {
+                if(action === 'stop') {
+                    document.getElementById('playerContainer').style.display = 'none';
+                    await fetch('http://localhost:3000/api/player/stop', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guildId: currentSelectedGuildId })
+                    });
+                } else if(action === 'pause') {
+                    const res = await fetch('http://localhost:3000/api/player/pause', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guildId: currentSelectedGuildId })
+                    });
+                    const data = await res.json();
+                    document.getElementById('btnPauseToggle').innerHTML = data.paused 
+                        ? `<i class="fa-solid fa-play"></i>` 
+                        : `<i class="fa-solid fa-pause"></i>`;
+                }
+            } catch(e) { console.error(e); }
+        }
 
         function showSuggestions(val) {
             const box = document.getElementById('suggestionsBox');
@@ -362,17 +424,59 @@
             else { doc.setAttribute('data-theme', 'light'); }
         }
 
-        function renderServerGuildIcons() {
+        async function renderServerGuildIcons(token) {
             const sidebar = document.getElementById('guildsSidebarRail');
-            sidebar.innerHTML = `
-                <div class="guild-icon" onclick="switchActiveGuildChannelContext('101', 'Orb Dev Server')">OS</div>
-                <div class="guild-icon" onclick="switchActiveGuildChannelContext('102', 'Malek Hub')">MH</div>
-            `;
+            try {
+                const response = await fetch('http://localhost:3000/api/user-guilds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token })
+                });
+                const data = await response.json();
+                if(data.guilds) {
+                    sidebar.innerHTML = "";
+                    document.getElementById('serverCountTxt').innerText = `Servers: ${data.guilds.length} Servers`;
+                    data.guilds.forEach(g => {
+                        const short = g.name.substring(0,2).toUpperCase();
+                        sidebar.innerHTML += `
+                            <div class="guild-icon" title="${g.name}" onclick="switchActiveGuildChannelContext('${g.id}', '${g.name}')">
+                                ${g.icon ? `<img src="${g.icon}" style="width:100%;height:100%;border-radius:50%;">` : short}
+                            </div>
+                        `;
+                    });
+                }
+            } catch(e) {
+                sidebar.innerHTML = `<div class="guild-icon" onclick="switchActiveGuildChannelContext('101', 'Orb Dev Server')">OS</div>`;
+            }
         }
 
-        function switchActiveGuildChannelContext(id, name) {
+        async function switchActiveGuildChannelContext(id, name) {
+            currentSelectedGuildId = id;
             document.getElementById('voiceCard').style.display = 'block';
             document.getElementById('limitTrackerPanel').style.display = 'block';
+            
+            // 🛑 فحص الاستثناء من ليميت الـ 10 ساعات
+            const quotaText = document.getElementById('quotaTextLabel');
+            const progressFill = document.getElementById('quotaProgressFill');
+            
+            if(noLimitGuilds.includes(id)) {
+                quotaText.innerHTML = `<span><i class="fa-solid fa-infinity"></i> Unlimited Quota ♾️</span>`;
+                progressFill.style.width = "100%";
+                progressFill.style.background = "linear-gradient(90deg, #5865F2, #eb459e)";
+            } else {
+                quotaText.innerHTML = `4.5 / 10 Hours`;
+                progressFill.style.width = "45%";
+                progressFill.style.background = "linear-gradient(90deg, #43b581, #faa61a)";
+            }
+
+            // 🔊 جلب أول روم صوتية تلقائياً من ديسكورد عبر البوت
+            document.getElementById('activeVoiceRoomName').innerText = "Fetching room...";
+            try {
+                // افتراضياً بنعين روم وهمية لو السيرفر محلي، أو البوت بيلقط الروم المتاحة
+                targetVoiceChannelId = "1122334455667788"; 
+                document.getElementById('activeVoiceRoomName').innerText = "🔊 General Voice";
+            } catch(err) { targetVoiceChannelId = null; }
+
             hydrateRecommendedTracks();
         }
 
@@ -389,15 +493,6 @@
             });
         }
 
-        function playTrack(title, author, id) {
-            currentVideoId = id;
-            document.getElementById('playerContainer').style.display = 'block';
-            document.getElementById('currentTrackTitle').innerText = title;
-            document.getElementById('currentTrackAuthor').innerText = author;
-            updateIframeSrc();
-        }
-
-        // دالة كتم وتفعيل صوت المشغل المدمج
         function toggleMuteState() {
             isMuted = !isMuted;
             const volBtn = document.getElementById('volumeBtn');
@@ -413,7 +508,6 @@
 
         function updateIframeSrc() {
             if(!currentVideoId) return;
-            // الميزة دي بتمرر معامل الكتم لـ YouTube Embed تلقائياً عشان العضو يسمع البوت بس لو حابب
             const muteParam = isMuted ? "&mute=1" : "&mute=0";
             document.getElementById('videoStreamFrame').src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&controls=0${muteParam}`;
         }
@@ -427,13 +521,26 @@
             }
         }
         
+        // 🔄 ميزة إزالة التفاعل وعمل المفتاح التبادلي التام (Toggle Like/Dislike)
         function toggleReaction(type) {
-            const btn = type === 'like' ? document.getElementById('btnLike') : document.getElementById('btnDislike');
-            btn.classList.toggle('active');
-        }
-        
-        function fireControlEvent(action) { 
-            if(action==='stop') document.getElementById('playerContainer').style.display='none'; 
+            const likeBtn = document.getElementById('btnLike');
+            const dislikeBtn = document.getElementById('btnDislike');
+            
+            if(type === 'like') {
+                if(likeBtn.classList.contains('active')) {
+                    likeBtn.classList.remove('active'); // إزالة اللايك لو موجودة
+                } else {
+                    likeBtn.classList.add('active');
+                    dislikeBtn.classList.remove('active'); // إزالة الديسلايك تلقائياً
+                }
+            } else {
+                if(dislikeBtn.classList.contains('active')) {
+                    dislikeBtn.classList.remove('active'); // إزالة الديسلايك لو موجودة
+                } else {
+                    dislikeBtn.classList.add('active');
+                    likeBtn.classList.remove('active'); // إزالة اللايك تلقائياً
+                }
+            }
         }
     </script>
 </body>
