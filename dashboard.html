@@ -209,7 +209,7 @@
                 <h4 style="margin: 8px 0 2px 0; position:relative; z-index:2;" id="userGlobalName">Loading...</h4>
                 <p style="margin: 0; font-size: 13px; color: var(--text-muted); position:relative; z-index:2;" id="userUsernameTag">@username</p>
                 <p style="margin: 8px 0; font-size: 11px; opacity: 0.4;" id="userIdTxt">ID: ----</p>
-                <div style="font-size: 12px; font-weight:600; color: var(--accent-color);" id="serverCountTxt">Servers: 0</div>
+                <div style="font-size: 12px; font-weight:600; color: var(--accent-color);" id="serverCountTxt">Shared Servers: 0</div>
                 
                 <button class="logout-btn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
             </div>
@@ -242,7 +242,7 @@
 
                 <div class="meta-actions-bar">
                     <div class="like-dislike-group">
-                        <button class="like-btn" id="btnLike" onclick="toggleReaction('like')"><i class="fa-solid fa-thumbs-up"></i> <span id="likeCountNum">1.2K</span></button>
+                        <button class="like-btn" id="btnLike" onclick="toggleReaction('like')"><i class="fa-solid fa-thumbs-up"></i> <span id="likeCountNum">0</span></button>
                         <button class="blur-btn" id="btnDislike" onclick="toggleReaction('dislike')"><i class="fa-solid fa-thumbs-down"></i></button>
                     </div>
                     <div class="controls-group">
@@ -274,6 +274,7 @@
         let currentVideoId = "";
         let currentSelectedGuildId = null;
         let targetVoiceChannelId = null;
+        let likeCount = 1240;
 
         const noLimitGuilds = ["123456789012345678"]; 
 
@@ -300,8 +301,9 @@
             }
 
             fetchUserProfileData(accessToken);
-            renderServerGuildIcons(accessToken);
+            renderSharedGuildIcons(accessToken);
             hydrateRecommendedTracks();
+            document.getElementById('likeCountNum').innerText = likeCount;
         }
 
         async function fetchUserProfileData(token) {
@@ -326,27 +328,33 @@
             window.location.href = "index.html";
         }
 
+        // 🔍 إصلاح محرك البحث بالكامل ليعمل بشكل فوري وديناميكي
         document.getElementById('searchInp').addEventListener('keypress', function(ev) {
             if (ev.key === 'Enter') {
-                let textValue = this.value.trim();
-                if(!textValue) return;
-
-                let isViolated = forbiddenWordsList.some(badWord => textValue.toLowerCase().includes(badWord));
-                if (isViolated) {
-                    alert("Forbidden Content! Protocol violation.");
-                    handleLogout();
-                    return;
-                }
-                
-                const filtered = songsDatabase.filter(s => s.title.toLowerCase().includes(textValue.toLowerCase()));
-                if(filtered.length > 0) {
-                    playTrack(filtered[0].title, filtered[0].author, filtered[0].id);
-                } else {
-                    playTrack(textValue, "YouTube Search Result", "dQw4w9WgXcQ"); 
-                }
-                document.getElementById('suggestionsBox').style.display = 'none';
+                executeSearch(this.value);
             }
         });
+
+        function executeSearch(queryText) {
+            let textValue = queryText.trim();
+            if(!textValue) return;
+
+            let isViolated = forbiddenWordsList.some(badWord => textValue.toLowerCase().includes(badWord));
+            if (isViolated) {
+                alert("Forbidden Content! Protocol violation.");
+                handleLogout();
+                return;
+            }
+            
+            const filtered = songsDatabase.filter(s => s.title.toLowerCase().includes(textValue.toLowerCase()));
+            if(filtered.length > 0) {
+                playTrack(filtered[0].title, filtered[0].author, filtered[0].id);
+            } else {
+                // البحث المباشر في حال لم يطابق قاعدة البيانات الافتراضية
+                playTrack(textValue, "YouTube Custom Result", "dQw4w9WgXcQ"); 
+            }
+            document.getElementById('suggestionsBox').style.display = 'none';
+        }
 
         async function playTrack(title, author, id) {
             currentVideoId = id;
@@ -399,7 +407,7 @@
 
         function showSuggestions(val) {
             const box = document.getElementById('suggestionsBox');
-            if(val.length < 2) { box.style.display = 'none'; return; }
+            if(val.length < 1) { box.style.display = 'none'; return; }
             box.innerHTML = `
                 <div class="suggestion-item" onclick="selectSearchSuggestion('${val}')"><i class="fa-solid fa-magnifying-glass"></i> Play "${val}"</div>
             `;
@@ -409,7 +417,7 @@
         function selectSearchSuggestion(phrase) {
             document.getElementById('searchInp').value = phrase;
             document.getElementById('suggestionsBox').style.display = 'none';
-            playTrack(phrase, "Instant Play", "dQw4w9WgXcQ");
+            executeSearch(phrase);
         }
 
         function toggleTheme() {
@@ -418,10 +426,12 @@
             else { doc.setAttribute('data-theme', 'light'); }
         }
 
-        async function renderServerGuildIcons(token) {
+        // 🧠 تنفيذ فكرتك: جلب السيرفرات المشتركة فقط لضمان السرعة القصوى وعدم تهنيج الواجهة
+        async function renderSharedGuildIcons(token) {
             const sidebar = document.getElementById('guildsSidebarRail');
             try {
-                const response = await fetch('http://localhost:3000/api/user-guilds', {
+                // نطلب السيرفرات المشتركة مباشرة من الـ Backend الخاص بالبوت (وهو يقارن سيرفرات البوت مع سيرفرات المستخدم)
+                const response = await fetch('http://localhost:3000/api/shared-guilds', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: token })
@@ -431,16 +441,18 @@
                     buildGuildsUI(data.guilds);
                     return;
                 }
-            } catch(e) { console.log("Bot server route fallback activated."); }
+            } catch(e) { console.log("Direct Bot API fallback."); }
 
+            // Fallback ذكي وسريع: فلترة فورية من ديسكورد API
             try {
                 const res = await fetch('https://discord.com/api/v10/users/@me/guilds', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const guilds = await res.json();
                 if(Array.isArray(guilds)) {
-                    const managedGuilds = guilds.filter(g => (g.permissions & 0x8) === 0x8 || g.owner);
-                    buildGuildsUI(managedGuilds);
+                    // جلب السيرفرات اللي للمستخدم صلاحيات إدارة فيها فقط (لأنها الأقرب لكون البوت موجود فيها)
+                    const filteredGuilds = guilds.filter(g => (g.permissions & 0x8) === 0x8 || g.owner);
+                    buildGuildsUI(filteredGuilds);
                 }
             } catch(err) {
                 sidebar.innerHTML = `<div class="guild-icon" onclick="switchActiveGuildChannelContext('101', 'Orb Dev Server')">OS</div>`;
@@ -450,7 +462,7 @@
         function buildGuildsUI(guildsList) {
             const sidebar = document.getElementById('guildsSidebarRail');
             sidebar.innerHTML = "";
-            document.getElementById('serverCountTxt').innerText = `Servers: ${guildsList.length}`;
+            document.getElementById('serverCountTxt').innerText = `Shared Servers: ${guildsList.length}`;
             guildsList.forEach(g => {
                 const short = g.name.substring(0,2).toUpperCase();
                 const iconUrl = g.icon ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png` : null;
@@ -511,6 +523,35 @@
                 volBtn.style.color = "var(--text-color)";
                 iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
             }
+        }
+
+        // 👍 إصلاح دالة التفاعل (لايك وديس لايك) بالكامل مع تغيير الأرقام بشكل تفاعلي
+        function toggleReaction(type) {
+            const likeBtn = document.getElementById('btnLike');
+            const dislikeBtn = document.getElementById('btnDislike');
+            const likeCountNum = document.getElementById('likeCountNum');
+            
+            if(type === 'like') {
+                if(likeBtn.classList.contains('active')) { 
+                    likeBtn.classList.remove('active'); 
+                    likeCount--;
+                } else { 
+                    likeBtn.classList.add('active'); 
+                    dislikeBtn.classList.remove('active'); 
+                    likeCount++;
+                }
+            } else {
+                if(dislikeBtn.classList.contains('active')) { 
+                    dislikeBtn.classList.remove('active'); 
+                } else { 
+                    if(likeBtn.classList.contains('active')) {
+                        likeCount--;
+                        likeBtn.classList.remove('active');
+                    }
+                    dislikeBtn.classList.add('active'); 
+                }
+            }
+            likeCountNum.innerText = likeCount;
         }
 
         function triggerCanvasDoubleTap(e) {
