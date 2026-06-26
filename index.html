@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orb Music - Welcome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0a0a0c;
+            color: #f1f1f1;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #5865F2;
+            filter: blur(150px);
+            opacity: 0.15;
+            animation: pulseGlow 8s infinite alternate;
+        }
+        @keyframes pulseGlow { 0% { transform: scale(1); } 100% { transform: scale(1.3); } }
+
+        .welcome-box {
+            text-align: center;
+            background: #121218;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #5865F2, #eb459e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p { color: #8a8b92; font-size: 1.1rem; margin-bottom: 30px; }
+        .btn-discord-login {
+            background: #5865F2;
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(88,101,242,0.3);
+        }
+        .btn-discord-login:hover {
+            background: #4752C4;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(88,101,242,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="welcome-box animate__animated animate__zoomIn">
+        <h1><i class="fa-solid fa-circle-nodes fa-spin"></i> Orb Music</h1>
+        <p>Experience Sound Differently. Control your server's audio stream with ultimate precision directly from the web.</p>
+        
+        <!-- كود الـ OAuth2 بتاعك متركب هنا -->
+        <button class="btn-discord-login" id="btnDiscordLogin">
+            <i class="fa-brands fa-discord"></i> Login via Discord
+        </button>
+    </div>
+
+    <script>
+        document.getElementById('btnDiscordLogin').addEventListener('click', () => {
+            const clientId = "1505649534473339102"; 
+            const redirectUri = encodeURIComponent("https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/dashboard.html");
+            const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=identify%20email`;
+            
+            window.location.href = discordAuthUrl;
+        });
+    </script>
+</body>
+</html>
