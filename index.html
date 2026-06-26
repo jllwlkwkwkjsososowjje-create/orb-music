@@ -87,7 +87,7 @@
     <script>
         document.getElementById('btnDiscordLogin').addEventListener('click', () => {
             const clientId = "1519964062266556487"; 
-            const redirectUri = encodeURIComponent("https://jllwlkwkwkjsososowjje-create.github.io/discord-verification-center/dashboard.html");
+            const redirectUri = encodeURIComponent("https://jllwlkwkwkjsososowjje-create.github.io/orb-music/dashboard.html");
             const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=identify%20email`;
             
             window.location.href = discordAuthUrl;
